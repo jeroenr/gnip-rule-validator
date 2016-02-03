@@ -61,6 +61,21 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "not accept only stop words" in {
       GnipRuleParser("a an and at but by com from http https if in is it its me my or rt the this to too via we www you").failure
     }
+    "accept groups" in {
+      GnipRuleParser("(the boat)").success
+    }
+    "accept nested groups" in {
+      GnipRuleParser("(the boat (bla bla))").success
+    }
+    "accept groups combined with non-groups" in {
+      GnipRuleParser("the boat (bla bla)").success
+    }
+    "accept negated groups" in {
+      GnipRuleParser("the boat -(bla bla)").success
+    }
+    "not accept unclosed groups" in {
+      GnipRuleParser("(hello (world) bla").failed
+    }
   }
 
 }

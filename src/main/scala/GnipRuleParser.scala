@@ -11,13 +11,12 @@ import scala.util.parsing.combinator._
 object GnipRuleParser extends RegexParsers {
   val STOPWORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines().toSeq
 
-  private val doubleQuote = """\"""".r ^^ { _.toString }
   private val keyword = """[\w#][\w!%&\\'*+-\./;<=>?,#@]*""".r ^^ { _.toString }
   private val optionallyNegatedKeyword = ("""-?""".r ^^ { _.toString }) ~ keyword
 
   private val recOptionallyNegatedKeywords = rep1(optionallyNegatedKeyword)
 
-  private val quotedKeywords = doubleQuote ~ recOptionallyNegatedKeywords ~ doubleQuote
+  private val quotedKeywords = "\"" ~ recOptionallyNegatedKeywords ~ "\""
   private val recQuotedKeywords = rep1(quotedKeywords)
 
   private val quotedOrUnquotedKeywords = recOptionallyNegatedKeywords ||| recQuotedKeywords
@@ -28,9 +27,11 @@ object GnipRuleParser extends RegexParsers {
   private val singleKeyword = noStopWord ~> (keyword ||| quotedKeywords)
   private val multipleKeywords = (optionallyNegatedKeyword ||| quotedKeywords) ~ rep1(quotedOrUnquotedKeywords)
 
-  private val gnipKeywordPhrase = phrase(singleKeyword ||| multipleKeywords)
+  private val gnipKeywordPhrase = singleKeyword ||| multipleKeywords
 
-  def apply(rule: String) = parse(gnipKeywordPhrase, rule) match {
+  private val keywordInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
+
+  def apply(rule: String) = parse(phrase(gnipKeywordPhrase ||| keywordInParentheses), rule) match {
     case Success(matched, x) => scala.util.Success(matched)
     case NoSuccess(msg, x) => scala.util.Failure(new RuntimeException(msg))
   }
