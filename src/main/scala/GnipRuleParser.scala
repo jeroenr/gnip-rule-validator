@@ -13,7 +13,7 @@ object GnipRuleParser extends RegexParsers {
   val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
   val STOPWORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 
-  private val keyword = """[\w#][\w!%&\\'*+-\./;<=>?,#@]*""".r ||| OPERATORS.map(_ ~ opt(""":[\w]+""".r)).reduceLeft(_ ||| _)
+  private val keyword = """[\w#@][\w!%&\\'*+-\./;<=>?,#@]*""".r ||| OPERATORS.map(_ ~ opt(""":[\w]+""".r)).reduceLeft(_ ||| _)
   private val optionallyNegatedKeyword = opt("-") ~ keyword
 
   private val recOptionallyNegatedKeywords = optionallyNegatedKeyword+

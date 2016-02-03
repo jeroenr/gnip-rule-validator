@@ -10,6 +10,9 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "accept single word" in {
       GnipRuleParser("hello").success
     }
+    "accept two words" in {
+      GnipRuleParser("hello world").success
+    }
     "accept special characters in word" in {
       GnipRuleParser("hello!%&\'*+-./;<=>?,#@world").success
     }
@@ -126,6 +129,21 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     }
     "accept multiple powertrack operators" in {
       GnipRuleParser("lang:en has:links from:8744 contains:help url_contains:foo").success
+    }
+    "accept combination of all" in {
+      GnipRuleParser("(gnip OR from:688583 OR @gnip) (\"powertrack -operators\" OR \"streaming code\"~4) contains:help -lang:en").success
+    }
+    "NOT accept OR missing terms after" in {
+      GnipRuleParser("this OR").failed // why does this pass?
+    }
+    "NOT accept OR missing terms before" in {
+      GnipRuleParser("OR bla").failed // why does this pass?
+    }
+    "NOT accept negated OR" in {
+      GnipRuleParser("this OR -that").failed // why does this pass?
+    }
+    "accept OR" in {
+      GnipRuleParser("this OR that").success
     }
 
     //    "accept full syntax" in {
