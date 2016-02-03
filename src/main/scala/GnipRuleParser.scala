@@ -8,15 +8,16 @@ import scala.util.parsing.combinator._
  * Created by jero on 26-1-16.
  */
 object GnipRuleParser extends RegexParsers {
+
+  //  private def stopWords = """a|an|and|at|but|by|com|from|http|https|if|in|is|it|its|me|my|or|rt|the|this|to|too|via|we|www|you""".r ^^ { _.toString }
   private def doubleQuote = """\"""".r ^^ { _.toString }
-  private def keyword = """[\w!?@#&%]+""".r ^^ { _.toString }
+  private def keyword = """[\w#][\w!%&\\'*+-\./;<=>?,#@]*""".r ^^ { _.toString }
   private def optionallyNegatedKeyword = ("""-?""".r ^^ { _.toString }) ~ keyword
 
-  private def recNonNegatedKeywords = rep1(keyword)
-  private def recOptionallyNegatedKeywords = optionallyNegatedKeyword ~ rep(optionallyNegatedKeyword)
+  private def recOptionallyNegatedKeywords = rep1(optionallyNegatedKeyword)
 
-  private def quotedKeywords = doubleQuote ~ recNonNegatedKeywords ~ doubleQuote
-  private def recQuotedKeywords = quotedKeywords ~ rep(quotedKeywords)
+  private def quotedKeywords = doubleQuote ~ recOptionallyNegatedKeywords ~ doubleQuote
+  private def recQuotedKeywords = rep1(quotedKeywords)
 
   private def quotedOrUnquotedKeywords = recOptionallyNegatedKeywords ||| recQuotedKeywords
   private def recKeywords = keyword ||| quotedKeywords ||| ((optionallyNegatedKeyword ||| quotedKeywords) ~ rep1(quotedOrUnquotedKeywords))

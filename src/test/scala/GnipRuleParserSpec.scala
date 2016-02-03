@@ -10,6 +10,15 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "accept single word" in {
       GnipRuleParser("hello").success
     }
+    "accept special characters in word" in {
+      GnipRuleParser("hello!%&\'*+-./;<=>?,#@world").success
+    }
+    "accept single hashtag" in {
+      GnipRuleParser("#yolo").success
+    }
+    "not accept special characters in beginning of word" in {
+      GnipRuleParser("!hello").failure
+    }
     "accept multiple words" in {
       GnipRuleParser("hello? beautiful world!").success
     }
@@ -31,9 +40,6 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "not accept only negated words" in {
       GnipRuleParser("-hello -world").failure
     }
-    "not accept quoted negated words" in {
-      GnipRuleParser("\"-hello world\"").failure
-    }
     "not accept unfinished quotes" in {
       GnipRuleParser("\"-hello world\" bla \"lol bla bla").failure
     }
@@ -42,6 +48,9 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     }
     "not accept single stop word" in {
       GnipRuleParser("the").failure
+    }
+    "accept stop word combined with non stop word" in {
+      GnipRuleParser("the boat").success
     }
     "not accept only stop words" in {
       GnipRuleParser("a an and at but by com from http https if in is it its me my or rt the this to too via we www you").failure
