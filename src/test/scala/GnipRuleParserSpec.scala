@@ -65,7 +65,16 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleParser("(the boat)").success
     }
     "accept nested groups" in {
+      GnipRuleParser("((bla bla))").success
+    }
+    "accept nested groups with terms before" in {
       GnipRuleParser("(the boat (bla bla))").success
+    }
+    "accept nested groups with terms after" in {
+      GnipRuleParser("((bla bla) lol lol)").success
+    }
+    "accept nested groups with terms before AND after" in {
+      GnipRuleParser("(lol lol (bla bla) lol lol)").success
     }
     "accept groups combined with non-groups" in {
       GnipRuleParser("the boat (bla bla)").success

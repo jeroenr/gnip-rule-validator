@@ -27,11 +27,11 @@ object GnipRuleParser extends RegexParsers {
   private val singleKeyword = noStopWord ~> (keyword ||| quotedKeywords)
   private val multipleKeywords = (optionallyNegatedKeyword ||| quotedKeywords) ~ rep1(quotedOrUnquotedKeywords)
 
-  private val gnipKeywordPhrase = singleKeyword ||| multipleKeywords
+  private def keywordInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
 
-  private val keywordInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
+  private def gnipKeywordPhrase: GnipRuleParser.Parser[_] = singleKeyword ||| rep1(multipleKeywords ||| keywordInParentheses)
 
-  def apply(rule: String) = parse(phrase(gnipKeywordPhrase ||| keywordInParentheses), rule) match {
+  def apply(rule: String) = parse(phrase(gnipKeywordPhrase), rule) match {
     case Success(matched, x) => scala.util.Success(matched)
     case NoSuccess(msg, x) => scala.util.Failure(new RuntimeException(msg))
   }
