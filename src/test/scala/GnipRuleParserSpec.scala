@@ -37,28 +37,28 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "accept all combinations of optional negation and quoted words" in {
       GnipRuleParser("\"hello world?\" bla -bla \"lol!\" bla").success
     }
-    "not accept single negated word" in {
+    "NOT accept single negated word" in {
       GnipRuleParser("-hello").failure
     }
-    "not accept only negated words" in {
+    "NOT accept only negated words" in {
       GnipRuleParser("-hello -world").failure
     }
-    "not accept unfinished quotes" in {
+    "NOT accept unfinished quotes" in {
       GnipRuleParser("\"-hello world\" bla \"lol bla bla").failure
     }
-    "not accept empty string" in {
+    "NOT accept empty string" in {
       GnipRuleParser("").failure
     }
-    "not accept single stop word" in {
+    "NOT accept single stop word" in {
       GnipRuleParser("the").failure
     }
-    "not accept single stop word 2" in {
+    "NOT accept single stop word 2" in {
       GnipRuleParser("at").failure
     }
     "accept stop word combined with non stop word" in {
       GnipRuleParser("the boat").success
     }
-    "not accept only stop words" in {
+    "NOT accept only stop words" in {
       GnipRuleParser("a an and at but by com from http https if in is it its me my or rt the this to too via we www you").failure
     }
     "accept group" in {
@@ -88,11 +88,14 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "accept quoted keywords in groups" in {
       GnipRuleParser("(\"bla\" \"bla\")").success
     }
-    "not accept unclosed groups" in {
+    "NOT accept unclosed groups" in {
       GnipRuleParser("(hello (world) bla").failed
     }
     "accept single powertrack operator" in {
       GnipRuleParser("lang:en").success
+    }
+    "NOT accept invalid use of powertrack operator" in {
+      GnipRuleParser("lang:").failed
     }
     "accept proximity operator" in {
       GnipRuleParser("\"happy birthday\"~3").success
@@ -103,8 +106,23 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "accept powertrack operator with terms in parentheses before" in {
       GnipRuleParser("(bla bla) lang:en").success
     }
-    "accept negated powertrack operator" in {
-      GnipRuleParser("-lang:en").success
+    "accept powertrack operator with terms in parentheses after" in {
+      GnipRuleParser("lang:en (bla bla)").success
+    }
+    "accept powertrack operator with terms in parentheses before AND after" in {
+      GnipRuleParser("(bla bla) lang:en (bla bla)").success
+    }
+    "accept negated powertrack operator with terms after" in {
+      GnipRuleParser("-lang:en bla").success
+    }
+    "accept negated powertrack operator with terms before" in {
+      GnipRuleParser("bla -lang:en").success
+    }
+    "NOT accept only negated powertrack operators" in {
+      GnipRuleParser("-lang:en -contains:lol").failure
+    }
+    "accept negated powertrack operator with terms before AND after" in {
+      GnipRuleParser("bla -lang:en bla").success
     }
     "accept multiple powertrack operators" in {
       GnipRuleParser("lang:en has:links from:8744 contains:help url_contains:foo").success
