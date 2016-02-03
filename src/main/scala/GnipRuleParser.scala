@@ -1,5 +1,4 @@
-import java.io.Serializable
-
+import scala.io.Source
 import scala.util.parsing.combinator._
 
 /**
@@ -10,8 +9,7 @@ import scala.util.parsing.combinator._
  * Created by jero on 26-1-16.
  */
 object GnipRuleParser extends RegexParsers {
-
-  val STOPWORDS = Seq("a", "an", "and", "at", "but", "by", "com", "from", "http", "https", "if", "in", "is", "it", "its", "me", "my", "or", "rt", "the", "this", "to", "too", "via", "we", "www", "you")
+  val STOPWORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines().toSeq
 
   private val doubleQuote = """\"""".r ^^ { _.toString }
   private val keyword = """[\w#][\w!%&\\'*+-\./;<=>?,#@]*""".r ^^ { _.toString }
