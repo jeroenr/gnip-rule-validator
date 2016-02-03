@@ -10,6 +10,9 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "accept single word" in {
       GnipRuleParser("hello").success
     }
+    "accept upcasing word" in {
+      GnipRuleParser("helLo WOrlD").success
+    }
     "accept two words" in {
       GnipRuleParser("hello world").success
     }
@@ -36,6 +39,15 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     }
     "accept quoted negated words" in {
       GnipRuleParser("\"hello -world!\"").success
+    }
+    "accept negated quoted words" in {
+      GnipRuleParser("bla -\"hello world!\"").success
+    }
+    "NOT accept negated quoted words in start position" in {
+      GnipRuleParser("-\"hello world!\"").failure
+    }
+    "NOT accept only negated quoted words" in {
+      GnipRuleParser("-\"hello world!\" -\"bye world!\"").failure
     }
     "accept all combinations of optional negation and quoted words" in {
       GnipRuleParser("\"hello world?\" bla -bla \"lol!\" bla").success
@@ -88,6 +100,12 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "accept negated groups" in {
       GnipRuleParser("the boat -(bla bla)").success
     }
+    "NOT accept negated group in start position" in {
+      GnipRuleParser("-(bla bla)").failure
+    }
+    "NOT accept only negated groups" in {
+      GnipRuleParser("-(bla bla) -(lol lol)").failure
+    }
     "accept quoted keywords in groups" in {
       GnipRuleParser("(\"bla\" \"bla\")").success
     }
@@ -95,7 +113,7 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleParser("(hello (world) bla").failed
     }
     "accept single powertrack operator" in {
-      GnipRuleParser("lang:en").success
+      GnipRuleParser("lang:EN").success
     }
     "NOT accept invalid use of powertrack operator" in {
       GnipRuleParser("lang:").failed
