@@ -10,8 +10,8 @@ A Gnip rule has the following restrictions
 3. Realtime and Historical PowerTrack (as well as Replay) support two forms of rules:
  * ‘Standard’ rules:
      * The entire string for a rule may be no more than 1024 characters, including all operators and spaces, with no single term exceeding 128 characters.
-     * Rules may contain no more than 30 positive operators (things you want to match or filter on). If you exceed this limit when trying to create a rule, you will receive a 422 error, with a message indicating that you have exceeded one of the clause limits.
-     * Rules may contain no more than 50 negative clauses. If you exceed this limit when trying to create a rule, you will receive a 422 error, with a message indicating that you have exceeded one of the clause limits.
+     * Rules may contain no more than 30 positive operators (things you want to match or filter on).
+     * Rules may contain no more than 50 negative clauses.
  * ‘Long’ rules can be up to 2,048 characters long, with no single term exceeding 128 characters, and with no limits on the number of positive and negative clauses.
 
 4. Negated ORs are not supported. Such as: apple OR -lang:en
