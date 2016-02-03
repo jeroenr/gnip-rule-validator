@@ -1,3 +1,5 @@
+import java.io.Serializable
+
 import scala.util.parsing.combinator._
 
 /**
@@ -25,9 +27,12 @@ object GnipRuleParser extends RegexParsers {
   private val stopword = STOPWORDS.map(acceptSeq(_)).reduceLeft((a, b) => a | b)
   private val noStopWord = not(stopword)
 
-  private val recKeywords = (noStopWord ~> (keyword ||| quotedKeywords)) ||| ((optionallyNegatedKeyword ||| quotedKeywords) ~ rep1(quotedOrUnquotedKeywords))
+  private val singleKeyword = noStopWord ~> (keyword ||| quotedKeywords)
+  private val multipleKeywords = (optionallyNegatedKeyword ||| quotedKeywords) ~ rep1(quotedOrUnquotedKeywords)
 
-  def apply(rule: String) = parse(phrase(recKeywords), rule) match {
+  private val gnipKeywordPhrase = phrase(singleKeyword ||| multipleKeywords)
+
+  def apply(rule: String) = parse(gnipKeywordPhrase, rule) match {
     case Success(matched, x) => scala.util.Success(matched)
     case NoSuccess(msg, x) => scala.util.Failure(new RuntimeException(msg))
   }
