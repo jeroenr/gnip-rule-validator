@@ -31,6 +31,9 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "accept quoted words" in {
       GnipRuleParser("\"hello world!\"").success
     }
+    "accept quoted negated words" in {
+      GnipRuleParser("\"hello -world!\"").success
+    }
     "accept all combinations of optional negation and quoted words" in {
       GnipRuleParser("\"hello world?\" bla -bla \"lol!\" bla").success
     }
@@ -48,6 +51,9 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     }
     "not accept single stop word" in {
       GnipRuleParser("the").failure
+    }
+    "not accept single stop word 2" in {
+      GnipRuleParser("at").failure
     }
     "accept stop word combined with non stop word" in {
       GnipRuleParser("the boat").success
