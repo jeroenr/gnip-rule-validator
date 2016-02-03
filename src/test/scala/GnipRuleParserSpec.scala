@@ -61,8 +61,11 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "not accept only stop words" in {
       GnipRuleParser("a an and at but by com from http https if in is it its me my or rt the this to too via we www you").failure
     }
-    "accept groups" in {
+    "accept group" in {
       GnipRuleParser("(the boat)").success
+    }
+    "accept groups" in {
+      GnipRuleParser("(the boat) (the other boat)").success
     }
     "accept nested groups" in {
       GnipRuleParser("((bla bla))").success
@@ -82,9 +85,34 @@ class GnipRuleParserSpec extends WordSpec with MustMatchers with TryValues {
     "accept negated groups" in {
       GnipRuleParser("the boat -(bla bla)").success
     }
+    "accept quoted keywords in groups" in {
+      GnipRuleParser("(\"bla\" \"bla\")").success
+    }
     "not accept unclosed groups" in {
       GnipRuleParser("(hello (world) bla").failed
     }
+    "accept single powertrack operator" in {
+      GnipRuleParser("lang:en").success
+    }
+    "accept proximity operator" in {
+      GnipRuleParser("\"happy birthday\"~3").success
+    }
+    "accept powertrack operator with terms before" in {
+      GnipRuleParser("bla lang:en").success
+    }
+    "accept powertrack operator with terms in parentheses before" in {
+      GnipRuleParser("(bla bla) lang:en").success
+    }
+    "accept negated powertrack operator" in {
+      GnipRuleParser("-lang:en").success
+    }
+    "accept multiple powertrack operators" in {
+      GnipRuleParser("lang:en has:links from:8744 contains:help url_contains:foo").success
+    }
+
+    //    "accept full syntax" in {
+    //      GnipRuleParser("(gnip OR from:688583 OR @gnip) (\"powertrack operators\" OR \"streaming code\"~4) contains:help bio_contains:developer has:links url_contains:github source:web (friends_count:1 OR followers_count:2000 OR listed_count:500 OR statuses_count:1000 OR is:verified OR klout_score:50) (country_code:US OR bio_location:CO OR bio_location_contains:Boulder OR time_zone:\"Mountain Time (US & Canada)\") -is_retweet (lang:en OR twitter_lang:en)").success
+    //    }
   }
 
 }

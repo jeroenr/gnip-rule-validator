@@ -9,14 +9,15 @@ import scala.util.parsing.combinator._
  * Created by jero on 26-1-16.
  */
 object GnipRuleParser extends RegexParsers {
+  val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
   val STOPWORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 
-  private val keyword = """[\w#][\w!%&\\'*+-\./;<=>?,#@]*""".r ^^ { _.toString }
-  private val optionallyNegatedKeyword = ("""-?""".r ^^ { _.toString }) ~ keyword
+  private val keyword = """[\w#][\w!%&\\'*+-\./;<=>?,#@]*""".r ||| OPERATORS.map(op => (op + """:?[\w]*""").r ^^ { _.toString }).reduceLeft(_ ||| _)
+  private val optionallyNegatedKeyword = opt("-") ~ keyword
 
   private val recOptionallyNegatedKeywords = optionallyNegatedKeyword+
 
-  private val quotedKeywords = "\"" ~ recOptionallyNegatedKeywords ~ "\""
+  private val quotedKeywords = "\"" ~ recOptionallyNegatedKeywords ~ "\"" ~ opt("(~[0-9])".r)
   private val recQuotedKeywords = quotedKeywords+
 
   private val quotedOrUnquotedKeywords = recOptionallyNegatedKeywords ||| recQuotedKeywords
