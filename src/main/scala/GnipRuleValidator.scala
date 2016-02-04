@@ -13,21 +13,19 @@ object GnipRuleValidator extends RegexParsers {
   val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 
-  private val stopWord = STOP_WORDS.map(sw => sw ^^^ sw).reduceLeft(_ ||| _)
+  private val stopWord = STOP_WORDS.map(literal).reduceLeft(_ ||| _)
   private val operators = OPERATORS.map(_ ~ (""":[\w]+""".r?)).reduceLeft(_ ||| _)
 
   private val keyword = """[\w#@][\w!%&\\'*+-\./;<=>?,#@]*""".r ||| operators
   private val maybeNegatedKeyword = ("-"?) ~ keyword
 
-  private val negatedKeyword = "-" ~ keyword
+  private val quotedKeyword = "\"" ~ (maybeNegatedKeyword +) ~ "\"" ~ ("~[0-9]".r ?)
+  private val maybeNegatedQuotedKeyword = ("-"?) ~ quotedKeyword
 
-  private val quotedKeyword = ("-"?) ~ "\"" ~ (maybeNegatedKeyword+) ~ "\"" ~ ("~[0-9]".r?)
-  private val negatedQuotedKeywords = "-" ~ quotedKeyword
-
-  private val maybeQuotedKeyword = maybeNegatedKeyword ||| quotedKeyword
+  private val maybeQuotedKeyword = maybeNegatedKeyword ||| maybeNegatedQuotedKeyword
   private val maybeQuotedKeywords = maybeQuotedKeyword+
 
-  private val singleKeyword = keyword ||| quotedKeyword
+  private val singleKeyword = keyword ||| maybeNegatedQuotedKeyword
   private val multipleKeywords = maybeQuotedKeyword ~ maybeQuotedKeywords+
 
   private def keywordsInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
@@ -35,7 +33,7 @@ object GnipRuleValidator extends RegexParsers {
 
   private def gnipKeywordPhrase: GnipRuleValidator.Parser[_] = (singleKeyword ||| multipleKeywords ||| maybeNegatedKeywordsInParentheses)+
 
-  private def guards = not(phrase(stopWord+)) ~ not(negatedQuotedKeywords) ~ not(negatedKeyword+) ~ not(("-" ~ keywordsInParentheses)+)
+  private def guards = not(phrase(stopWord+)) ~ not(("-" ~ quotedKeyword)+) ~ not(("-" ~ keyword)+) ~ not(("-" ~ keywordsInParentheses)+)
 
   def apply(rule: String) = parse(phrase(guards ~ gnipKeywordPhrase), rule) match {
     case Success(matched, x) => scala.util.Success(matched)
