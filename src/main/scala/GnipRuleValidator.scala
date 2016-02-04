@@ -1,6 +1,5 @@
 import scala.io.Source
 import scala.language.postfixOps
-import scala.util.parsing.combinator._
 import fastparse.all._
 
 /**
@@ -29,9 +28,9 @@ object GnipRuleValidator {
   private def keywordsInParentheses = P(("(".! ~ gnipKeywordPhrase ~ ")").!)
   private def orClause = P((keywordGroupWithoutOrClause ~ "OR".! ~ !"-" ~ gnipKeywordPhrase).!)
 
-  private def gnipKeywordPhrase: all.Parser[String] = P(keywordGroup.rep(min = 1).!)
+  private def gnipKeywordPhrase: Parser[String] = P(keywordGroup.rep(min = 1).!)
 
-  private def notOnly(p: all.Parser[String]) = P(!(p.rep(min = 1) ~ End))
+  private def notOnly(p: Parser[String]) = P(!(p.rep(min = 1) ~ End))
 
   //private def guards = notOnly(stopWord) ~ notOnly(P("-".! ~ quotedKeyword)) ~ notOnly("-" ~ keyword) ~ notOnly("-" ~ keywordsInParentheses)
 
