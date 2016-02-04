@@ -1,6 +1,5 @@
 import scala.io.Source
 import scala.language.postfixOps
-import scala.util.parsing.combinator._
 import fastparse.all._
 
 /**
@@ -10,25 +9,33 @@ object GnipRuleValidator {
   val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 
-  private val stopWord = STOP_WORDS.map(literal).reduceLeft(_ ||| _)
-  private val operators = OPERATORS.map(_ ~ (""":[\w]+""".r?)).reduceLeft(_ ||| _)
+  private val stopWord = P(StringIn(STOP_WORDS: _*).!)
+  private val wordChar = CharIn('a' to 'z') | CharIn('A' to 'Z')
+  private val numbers = CharIn('0' to '9')
+  private val operatorParam = P(":" ~ wordChar.rep(min = 1).!)
+  private val specialChar = CharIn("!%&\\'*+-./;<=>?,#@")
+  private val operators = OPERATORS.map(_ ~ operatorParam).reduceLeft(_ | _)
 
-  private val keyword = not("OR") ~ """[#@]?[\w][\w!%&\\'*+-\./;<=>?,#@]*""".r ||| operators
-  private val maybeNegatedKeyword = ("-"?) ~ keyword
-  private val quotedKeyword = "\"" ~ (maybeNegatedKeyword+) ~ "\"" ~ ("~[0-9]".r ?)
+  private val keyword = P((!"OR" ~ CharIn("#@").? ~ wordChar ~ (wordChar | specialChar).rep | operators).!)
 
-  private val keywordGroupWithoutOrClause = maybeNegatedKeyword ||| ("-"?) ~ quotedKeyword ||| ("-"?) ~ keywordsInParentheses
-  private val keywordGroup = keywordGroupWithoutOrClause ||| orClause
+  private val maybeNegatedKeyword = P(("-".? ~ keyword).!)
 
-  private def keywordsInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
-  private def orClause: GnipRuleValidator.Parser[_] = keywordGroupWithoutOrClause ~ "OR" ~ not("-") ~ gnipKeywordPhrase
-  private def gnipKeywordPhrase: GnipRuleValidator.Parser[_] = keywordGroup+
+  private val quotedKeyword = P(("\"".! ~ maybeNegatedKeyword.rep(min = 1) ~ "\"" ~ ("~" ~ numbers).?).!)
 
-  private def notOnly(p: GnipRuleValidator.Parser[_]) = not(phrase(p+))
-  private def guards = notOnly(stopWord) ~ notOnly("-" ~ quotedKeyword) ~ notOnly("-" ~ keyword) ~ notOnly("-" ~ keywordsInParentheses)
+  private val keywordGroupWithoutOrClause = P((maybeNegatedKeyword | ("-".? ~ quotedKeyword) | ("-".? ~ keywordsInParentheses)).!)
+  private val keywordGroup = P((keywordGroupWithoutOrClause | orClause).!)
 
-  def apply(rule: String) = parse(phrase(guards ~ gnipKeywordPhrase), rule) match {
-    case Success(matched, x) => scala.util.Success(matched)
-    case NoSuccess(msg, x) => scala.util.Failure(new RuntimeException(msg))
+  private def keywordsInParentheses = P(("(".! ~ gnipKeywordPhrase ~ ")").!)
+  private def orClause = P((keywordGroupWithoutOrClause ~ "OR".! ~ !"-" ~ gnipKeywordPhrase).!)
+
+  private def gnipKeywordPhrase: Parser[String] = P(keywordGroup.rep(min = 1).!)
+
+  private def notOnly(p: Parser[String]) = P(!(p.rep(min = 1) ~ End))
+
+  //private def guards = notOnly(stopWord) ~ notOnly(P("-".! ~ quotedKeyword)) ~ notOnly("-" ~ keyword) ~ notOnly("-" ~ keywordsInParentheses)
+
+  def apply(rule: String) = gnipKeywordPhrase.parse(rule) match {
+    case Parsed.Success(matched, x) => scala.util.Success(matched)
+    case Parsed.Failure(msg, x, extra) => scala.util.Failure(new RuntimeException(extra.traced.trace))
   }
 }
