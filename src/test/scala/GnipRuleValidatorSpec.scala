@@ -16,6 +16,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "NOT accept single @ in phrase" in {
       GnipRuleValidator("hello @ world").failure
     }
+    "NOT accept single @ in phrase 2" in {
+      GnipRuleValidator("@ hello").failure
+    }
     "NOT accept single + in phrase" in {
       GnipRuleValidator("hello + world").failure
     }
