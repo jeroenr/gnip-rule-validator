@@ -1,5 +1,5 @@
-# Gnip rule parser
-This is a Gnip rule parser using Scala parser combinators.
+# Gnip rule validator
+This is a Gnip rule validator using Scala parser combinators.
 
 A Gnip rule has the following restrictions
 
