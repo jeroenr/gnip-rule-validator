@@ -143,13 +143,13 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("(\"bla\" \"bla\")").success
     }
     "NOT accept unclosed groups" in {
-      GnipRuleValidator("(hello (world) bla").failed
+      GnipRuleValidator("(hello (world) bla").failure
     }
     "accept single powertrack operator" in {
       GnipRuleValidator("lang:EN").success
     }
     "NOT accept invalid use of powertrack operator" in {
-      GnipRuleValidator("lang:").failed
+      GnipRuleValidator("lang:").failure
     }
     "accept proximity operator" in {
       GnipRuleValidator("\"happy birthday\"~3").success
@@ -191,22 +191,25 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("(gnip OR from:688583 OR @gnip) (\"powertrack -operators\" OR \"streaming code\"~4) contains:help -lang:en").success
     }
     "NOT accept OR missing terms after" in {
-      GnipRuleValidator("this OR").failed // why does this pass?
+      GnipRuleValidator("this OR").failure
+    }
+    "NOT accept OR in group missing terms after" in {
+      GnipRuleValidator("(gnip OR)").failure
     }
     "NOT accept multiple OR missing terms after" in {
-      GnipRuleValidator("this OR that OR").failed // why does this pass?
+      GnipRuleValidator("this OR that OR").failure
     }
     "NOT accept OR missing terms before" in {
-      GnipRuleValidator("OR bla").failed // why does this pass?
+      GnipRuleValidator("OR bla").failure
     }
     "NOT accept negated OR" in {
-      GnipRuleValidator("this OR -that").failed // why does this pass?
+      GnipRuleValidator("this OR -that").failure
     }
     "accept OR" in {
       GnipRuleValidator("this OR that").success
     }
     "accept full syntax" in {
-      GnipRuleValidator("(gnip OR from:688583 OR @gnip OR -datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github").success
+      GnipRuleValidator("(gnip OR from:688583 OR @gnip OR -datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR -bar)) -contains:help has:links url_contains:github").success
     }
   }
 
