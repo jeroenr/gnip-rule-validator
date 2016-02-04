@@ -7,6 +7,31 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept single character" in {
       GnipRuleValidator("h").success
     }
+    "NOT accept single #" in {
+      GnipRuleValidator("#").failure
+    }
+    "NOT accept single @" in {
+      GnipRuleValidator("@").failure
+    }
+    "NOT accept single special character" in {
+      GnipRuleValidator("+").failure
+      GnipRuleValidator("!").failure
+      GnipRuleValidator("%").failure
+      GnipRuleValidator("&").failure
+      GnipRuleValidator("\\").failure
+      GnipRuleValidator("'").failure
+      GnipRuleValidator("*").failure
+      GnipRuleValidator("+").failure
+      GnipRuleValidator("-").failure
+      GnipRuleValidator(".").failure
+      GnipRuleValidator("/").failure
+      GnipRuleValidator(";").failure
+      GnipRuleValidator("<").failure
+      GnipRuleValidator("=").failure
+      GnipRuleValidator(">").failure
+      GnipRuleValidator("?").failure
+      GnipRuleValidator(",").failure
+    }
     "accept single word" in {
       GnipRuleValidator("hello").success
     }

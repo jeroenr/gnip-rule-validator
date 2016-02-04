@@ -12,7 +12,7 @@ object GnipRuleValidator extends RegexParsers {
   private val stopWord = STOP_WORDS.map(literal).reduceLeft(_ ||| _)
   private val operators = OPERATORS.map(_ ~ (""":[\w]+""".r?)).reduceLeft(_ ||| _)
 
-  private val keyword = """[\w#@][\w!%&\\'*+-\./;<=>?,#@]*""".r ||| operators
+  private val keyword = """[#@]?[\w][\w!%&\\'*+-\./;<=>?,#@]*""".r ||| operators
   private val maybeNegatedKeyword = ("-"?) ~ keyword
   private val quotedKeyword = "\"" ~ (maybeNegatedKeyword+) ~ "\"" ~ ("~[0-9]".r ?)
 
