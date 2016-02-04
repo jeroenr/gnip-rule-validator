@@ -16,9 +16,11 @@ object GnipRuleValidator extends RegexParsers {
   private val maybeNegatedKeyword = ("-"?) ~ keyword
   private val quotedKeyword = "\"" ~ (maybeNegatedKeyword+) ~ "\"" ~ ("~[0-9]".r ?)
 
-  private val keywordGroup = maybeNegatedKeyword ||| ("-"?) ~ quotedKeyword ||| ("-"?) ~ keywordsInParentheses
+  private val keywordGroupWithoutOrClause = maybeNegatedKeyword ||| ("-"?) ~ quotedKeyword ||| ("-"?) ~ keywordsInParentheses
+  private val keywordGroup = keywordGroupWithoutOrClause ||| orClause
 
   private def keywordsInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
+  private def orClause: GnipRuleValidator.Parser[_] = keywordGroupWithoutOrClause ~ "OR" ~ not("-") ~ gnipKeywordPhrase
   private def gnipKeywordPhrase: GnipRuleValidator.Parser[_] = keywordGroup+
 
   private def notOnly(p: GnipRuleValidator.Parser[_]) = not(phrase(p+))
