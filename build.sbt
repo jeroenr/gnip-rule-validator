@@ -11,6 +11,14 @@ maintainer := "Jeroen Rosenberg <jeroen@oxyme.com>"
 //uncomment the following line if you want cross build
 // crossScalaVersions := Seq("2.10.4", "2.11.6")
 
+publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value)
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}
+
 scalacOptions ++=  Seq(
   "-deprecation",
   "-unchecked",
