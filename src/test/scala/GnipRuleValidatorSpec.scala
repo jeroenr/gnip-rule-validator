@@ -76,6 +76,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "NOT accept only stop words" in {
       GnipRuleValidator("a an and at but by com from http https if in is it its me my or rt the this to too via we www you").failure
     }
+    "NOT accept only stop words 2" in {
+      GnipRuleValidator("a an").failure
+    }
     "accept group" in {
       GnipRuleValidator("(the boat)").success
     }
@@ -159,6 +162,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     }
     "NOT accept OR missing terms after" in {
       GnipRuleValidator("this OR").failed // why does this pass?
+    }
+    "NOT accept multiple OR missing terms after" in {
+      GnipRuleValidator("this OR that OR").failed // why does this pass?
     }
     "NOT accept OR missing terms before" in {
       GnipRuleValidator("OR bla").failed // why does this pass?
