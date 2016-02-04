@@ -1,8 +1,12 @@
-name := """gnip-rule-parser"""
-
-version := "1.0"
+name := """gnip-rule-validator"""
 
 scalaVersion := "2.11.6"
+
+packageSummary := "Gnip Rule Validator"
+
+packageDescription := "Gnip Rule Validator using parser combinators"
+
+maintainer := "Jeroen Rosenberg <jeroen@oxyme.com>"
 
 //uncomment the following line if you want cross build
 // crossScalaVersions := Seq("2.10.4", "2.11.6")
