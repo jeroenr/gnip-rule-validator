@@ -16,7 +16,7 @@ object GnipRuleValidator extends RegexParsers {
   private val maybeNegatedKeyword = ("-"?) ~ keyword
   private val quotedKeyword = "\"" ~ (maybeNegatedKeyword+) ~ "\"" ~ ("~[0-9]".r ?)
 
-  private val keywordGroup = keyword ||| maybeNegatedKeyword ||| ("-"?) ~ quotedKeyword ||| ("-"?) ~ keywordsInParentheses
+  private val keywordGroup = maybeNegatedKeyword ||| ("-"?) ~ quotedKeyword ||| ("-"?) ~ keywordsInParentheses
 
   private def keywordsInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
   private def gnipKeywordPhrase: GnipRuleValidator.Parser[_] = keywordGroup+
