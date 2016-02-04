@@ -18,16 +18,12 @@ object GnipRuleValidator extends RegexParsers {
 
   private val keyword = """[\w#@][\w!%&\\'*+-\./;<=>?,#@]*""".r ||| operators
   private val maybeNegatedKeyword = ("-"?) ~ keyword
+  private val quotedKeyword = "\"" ~ (maybeNegatedKeyword+) ~ "\"" ~ ("~[0-9]".r ?)
 
-  private val quotedKeyword = "\"" ~ (maybeNegatedKeyword +) ~ "\"" ~ ("~[0-9]".r ?)
-  private val maybeNegatedQuotedKeyword = ("-"?) ~ quotedKeyword
-
-  private val maybeQuotedKeyword = maybeNegatedKeyword ||| maybeNegatedQuotedKeyword
+  private val keywordGroup = keyword ||| maybeNegatedKeyword ||| ("-"?) ~ quotedKeyword ||| ("-"?) ~ keywordsInParentheses
 
   private def keywordsInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
-  private def maybeNegatedKeywordsInParentheses = ("-"?) ~ keywordsInParentheses
-
-  private def gnipKeywordPhrase: GnipRuleValidator.Parser[_] = (keyword ||| maybeQuotedKeyword ||| maybeNegatedKeywordsInParentheses)+
+  private def gnipKeywordPhrase: GnipRuleValidator.Parser[_] = keywordGroup+
 
   private def guards = not(phrase(stopWord+)) ~ not(("-" ~ quotedKeyword)+) ~ not(("-" ~ keyword)+) ~ not(("-" ~ keywordsInParentheses)+)
 
