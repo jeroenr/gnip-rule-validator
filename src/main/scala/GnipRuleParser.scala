@@ -17,10 +17,12 @@ object GnipRuleParser extends RegexParsers {
 
   private val keyword = """[\w#@][\w!%&\\'*+-\./;<=>?,#@]*""".r ||| OPERATORS.map(_ ~ opt(""":[\w]+""".r)).reduceLeft(_ | _)
   private val maybeNegatedKeyword = opt("-") ~ keyword
+  private val negatedKeyword = "-" ~ keyword
+  private val negatedKeywords = negatedKeyword+
 
   private val quotedKeyword = opt("-") ~ "\"" ~ (maybeNegatedKeyword+) ~ "\"" ~ opt("~[0-9]".r)
+  private val negatedQuotedKeywords = "-" ~ quotedKeyword
 
-  private val nonNegatedKeywords = (keyword ||| quotedKeyword)+
   private val maybeQuotedKeyword = maybeNegatedKeyword ||| quotedKeyword
   private val maybeQuotedKeywords = maybeQuotedKeyword+
 
@@ -31,8 +33,10 @@ object GnipRuleParser extends RegexParsers {
 
   private def keywordsInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
   private def maybeNegatedKeywordsInParentheses = opt("-") ~ keywordsInParentheses
+  private def negatedInParentheses = ("-" ~ keywordsInParentheses)+
 
-  private def gnipKeywordPhrase: GnipRuleParser.Parser[_] = (singleKeyword ||| multipleKeywords | maybeNegatedKeywordsInParentheses)+
+  private def guards = guard(not(negatedQuotedKeywords)) ~ guard(not(negatedKeywords)) ~ guard(not(negatedInParentheses))
+  private def gnipKeywordPhrase: GnipRuleParser.Parser[_] = guards ~ (singleKeyword ||| multipleKeywords | maybeNegatedKeywordsInParentheses)+
 
   def apply(rule: String) = parse(phrase(gnipKeywordPhrase), rule) match {
     case Success(matched, x) => scala.util.Success(matched)
