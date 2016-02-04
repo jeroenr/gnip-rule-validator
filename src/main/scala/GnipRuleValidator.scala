@@ -1,11 +1,12 @@
 import scala.io.Source
 import scala.language.postfixOps
 import scala.util.parsing.combinator._
+import fastparse.all._
 
 /**
  * Created by jero on 3-2-16.
  */
-object GnipRuleValidator extends RegexParsers {
+object GnipRuleValidator {
   val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 

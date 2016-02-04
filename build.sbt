@@ -26,7 +26,8 @@ scalacOptions ++=  Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
+//  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
+  "com.lihaoyi" %% "fastparse" % "0.3.4",
   "ch.qos.logback" % "logback-classic" % "1.1.2",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
