@@ -21,7 +21,8 @@ object GnipRuleValidator extends RegexParsers {
   private def keywordsInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
   private def gnipKeywordPhrase: GnipRuleValidator.Parser[_] = keywordGroup+
 
-  private def guards = not(phrase(stopWord+)) ~ not(("-" ~ quotedKeyword)+) ~ not(("-" ~ keyword)+) ~ not(("-" ~ keywordsInParentheses)+)
+  private def notOnly(p: GnipRuleValidator.Parser[_]) = not(phrase(p+))
+  private def guards = notOnly(stopWord) ~ notOnly("-" ~ quotedKeyword) ~ notOnly("-" ~ keyword) ~ notOnly("-" ~ keywordsInParentheses)
 
   def apply(rule: String) = parse(phrase(guards ~ gnipKeywordPhrase), rule) match {
     case Success(matched, x) => scala.util.Success(matched)
