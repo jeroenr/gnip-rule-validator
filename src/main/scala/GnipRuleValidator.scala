@@ -23,15 +23,11 @@ object GnipRuleValidator extends RegexParsers {
   private val maybeNegatedQuotedKeyword = ("-"?) ~ quotedKeyword
 
   private val maybeQuotedKeyword = maybeNegatedKeyword ||| maybeNegatedQuotedKeyword
-  private val maybeQuotedKeywords = maybeQuotedKeyword+
-
-  private val singleKeyword = keyword ||| maybeNegatedQuotedKeyword
-  private val multipleKeywords = maybeQuotedKeyword ~ maybeQuotedKeywords+
 
   private def keywordsInParentheses = "(" ~ gnipKeywordPhrase ~ ")"
   private def maybeNegatedKeywordsInParentheses = ("-"?) ~ keywordsInParentheses
 
-  private def gnipKeywordPhrase: GnipRuleValidator.Parser[_] = (singleKeyword ||| multipleKeywords ||| maybeNegatedKeywordsInParentheses)+
+  private def gnipKeywordPhrase: GnipRuleValidator.Parser[_] = (keyword ||| maybeQuotedKeyword ||| maybeNegatedKeywordsInParentheses)+
 
   private def guards = not(phrase(stopWord+)) ~ not(("-" ~ quotedKeyword)+) ~ not(("-" ~ keyword)+) ~ not(("-" ~ keywordsInParentheses)+)
 
