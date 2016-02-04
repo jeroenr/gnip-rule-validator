@@ -5,10 +5,6 @@ import scala.util.parsing.combinator._
 /**
  * Created by jero on 3-2-16.
  */
-
-/**
- * Created by jero on 26-1-16.
- */
 object GnipRuleValidator extends RegexParsers {
   val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
