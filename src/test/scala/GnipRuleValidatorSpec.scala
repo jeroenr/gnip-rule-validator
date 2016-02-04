@@ -13,6 +13,12 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "NOT accept single @" in {
       GnipRuleValidator("@").failure
     }
+    "NOT accept single @ in phrase" in {
+      GnipRuleValidator("hello @ world").failure
+    }
+    "NOT accept single + in phrase" in {
+      GnipRuleValidator("hello + world").failure
+    }
     "NOT accept single special character" in {
       GnipRuleValidator("+").failure
       GnipRuleValidator("!").failure
@@ -21,7 +27,6 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("\\").failure
       GnipRuleValidator("'").failure
       GnipRuleValidator("*").failure
-      GnipRuleValidator("+").failure
       GnipRuleValidator("-").failure
       GnipRuleValidator(".").failure
       GnipRuleValidator("/").failure
@@ -200,10 +205,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept OR" in {
       GnipRuleValidator("this OR that").success
     }
-
-    //    "accept full syntax" in {
-    //      GnipRuleParser("(gnip OR from:688583 OR @gnip) (\"powertrack operators\" OR \"streaming code\"~4) contains:help bio_contains:developer has:links url_contains:github source:web (friends_count:1 OR followers_count:2000 OR listed_count:500 OR statuses_count:1000 OR is:verified OR klout_score:50) (country_code:US OR bio_location:CO OR bio_location_contains:Boulder OR time_zone:\"Mountain Time (US & Canada)\") -is_retweet (lang:en OR twitter_lang:en)").success
-    //    }
+    "accept full syntax" in {
+      GnipRuleValidator("(gnip OR from:688583 OR @gnip OR -datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github").success
+    }
   }
 
 }
