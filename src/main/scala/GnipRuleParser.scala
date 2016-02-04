@@ -1,8 +1,6 @@
-import java.io
-
 import scala.io.Source
-import scala.util.parsing.combinator._
 import scala.language.postfixOps
+import scala.util.parsing.combinator._
 
 /**
  * Created by jero on 3-2-16.
@@ -35,10 +33,11 @@ object GnipRuleParser extends RegexParsers {
   private def maybeNegatedKeywordsInParentheses = opt("-") ~ keywordsInParentheses
   private def negatedInParentheses = ("-" ~ keywordsInParentheses)+
 
-  private def guards = guard(not(negatedQuotedKeywords)) ~ guard(not(negatedKeywords)) ~ guard(not(negatedInParentheses))
-  private def gnipKeywordPhrase: GnipRuleParser.Parser[_] = guards ~ (singleKeyword ||| multipleKeywords | maybeNegatedKeywordsInParentheses)+
+  private def gnipKeywordPhrase: GnipRuleParser.Parser[_] = (singleKeyword ||| multipleKeywords | maybeNegatedKeywordsInParentheses)+
 
-  def apply(rule: String) = parse(phrase(gnipKeywordPhrase), rule) match {
+  private def guards = guard(not(negatedQuotedKeywords)) ~ guard(not(negatedKeywords)) ~ guard(not(negatedInParentheses))
+
+  def apply(rule: String) = parse(phrase(guards ~ gnipKeywordPhrase), rule) match {
     case Success(matched, x) => scala.util.Success(matched)
     case NoSuccess(msg, x) => scala.util.Failure(new RuntimeException(msg))
   }
