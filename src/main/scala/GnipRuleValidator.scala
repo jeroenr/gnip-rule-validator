@@ -1,11 +1,19 @@
+import fastparse.WhitespaceApi
+
 import scala.io.Source
 import scala.language.postfixOps
-import fastparse.all._
 
 /**
  * Created by jero on 3-2-16.
  */
 object GnipRuleValidator {
+  val White = WhitespaceApi.Wrapper {
+    import fastparse.all._
+    NoTrace(" ".rep)
+  }
+  import fastparse.noApi._
+  import White._
+
   val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 
@@ -32,9 +40,9 @@ object GnipRuleValidator {
 
   private def notOnly(p: Parser[String]) = P(!(p.rep(min = 1) ~ End))
 
-  //private def guards = notOnly(stopWord) ~ notOnly(P("-".! ~ quotedKeyword)) ~ notOnly("-" ~ keyword) ~ notOnly("-" ~ keywordsInParentheses)
+  private def guards = notOnly(stopWord) ~ notOnly("-" ~ quotedKeyword) ~ notOnly("-" ~ keyword) ~ notOnly("-" ~ keywordsInParentheses)
 
-  def apply(rule: String) = gnipKeywordPhrase.parse(rule) match {
+  def apply(rule: String) = P(guards ~ gnipKeywordPhrase).parse(rule) match {
     case Parsed.Success(matched, x) => scala.util.Success(matched)
     case Parsed.Failure(msg, x, extra) => scala.util.Failure(new RuntimeException(extra.traced.trace))
   }
