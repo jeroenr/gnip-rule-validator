@@ -34,17 +34,18 @@ object GnipRuleValidator {
   private val maybeNegatedKeyword = P((("-"?) ~~ keyword)!)
   private val quotedKeyword = P(("\"" ~ (maybeNegatedKeyword+) ~ "\"" ~~ (("~" ~~ number)?))!)
 
-  private val keywordGroupWithoutOrClause = P((("-"?) ~~ quotedKeyword) | maybeNegatedKeyword | (("-"?) ~~ keywordsInParentheses))
-  private val keywordGroup = P(orClause | keywordGroupWithoutOrClause)
+  private val clause = P((("-"?) ~~ quotedKeyword) | maybeNegatedKeyword | groupedClause)
+  private def orClause = P(clause ~ "OR" ~ !"-" ~ gnipPhrases)
 
-  private def keywordsInParentheses = P("(" ~ gnipKeywordPhrase ~ ")")
-  private def orClause = P(keywordGroupWithoutOrClause ~ "OR" ~ !"-" ~ gnipKeywordPhrase)
-  private def gnipKeywordPhrase: Parser[String] = P((keywordGroup+)!)
+  private def groupedClause = P(("-"?) ~~ "(" ~ gnipPhrases ~ ")")
+  private val gnipPhrase = P(orClause | clause)
+
+  private def gnipPhrases: Parser[String] = P((gnipPhrase+)!)
 
   private def notOnly(p: Parser[String]) = P(!((p+) ~ End))
-  private def guards = notOnly(stopWord) ~ notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ keywordsInParentheses)
+  private def guards = notOnly(stopWord) ~ notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ groupedClause)
 
-  def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase.log("bla") ~ End).parse(rule) match {
+  def apply(rule: String) = P(Start ~ guards ~ gnipPhrases.log("bla") ~ End).parse(rule) match {
     case Parsed.Success(matched, index) => scala.util.Success(matched)
     case Parsed.Failure(lastParser, index, extra) =>
       println(s"traced: ${extra.traced.trace}")
