@@ -81,6 +81,7 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("-\"hello world!\" -\"bye world!\"").failure
     }
     "NOT accept spaces between negation" in {
+      print("SPACES BETW:")
       GnipRuleValidator("hello - world").failure
     }
     "accept all combinations of optional negation and quoted words" in {
@@ -208,6 +209,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     }
     "accept OR" in {
       GnipRuleValidator("this OR that").success
+    }
+    "accept ORbit" in {
+      GnipRuleValidator("ORbit").success
     }
     "accept multiple OR" in {
       GnipRuleValidator("this OR that OR these").success
