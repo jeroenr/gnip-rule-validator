@@ -44,7 +44,7 @@ object GnipRuleValidator {
   private def notOnly(p: Parser[String]) = P(!((p+) ~ End))
   private def guards = notOnly(stopWord) ~ notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ keywordsInParentheses)
 
-  def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase.log("bla") ~ End).parse(rule) match {
+  def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
     case Parsed.Success(matched, index) => scala.util.Success(matched)
     case Parsed.Failure(lastParser, index, extra) =>
       println(s"traced: ${extra.traced.trace}")

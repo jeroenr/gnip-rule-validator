@@ -11,7 +11,7 @@ maintainer := "Jeroen Rosenberg <jeroen@oxyme.com>"
 //uncomment the following line if you want cross build
 // crossScalaVersions := Seq("2.10.4", "2.11.6")
 
-credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+publishMavenStyle := true
 
 publishTo := {
   val nexus = "https://oss.sonatype.org/"
@@ -20,6 +20,28 @@ publishTo := {
   else
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
+
+pomIncludeRepository := { _ => false }
+
+pomExtra :=
+  <url>https://github.com/jeroenr/gnip-rule-validator</url>
+    <licenses>
+      <license>
+        <name>BSD-style</name>
+        <url>http://www.opensource.org/licenses/bsd-license.php</url>
+        <distribution>repo</distribution>
+      </license>
+    </licenses>
+    <scm>
+      <url>git@github.com:jeroenr/gnip-rule-validator.git</url>
+      <connection>scm:git:git@github.com:jeroenr/gnip-rule-validator.git</connection>
+    </scm>
+    <developers>
+      <developer>
+        <id>jeroenr</id>
+        <name>Jeroen Rosenberg</name>
+      </developer>
+    </developers>
 
 scalacOptions ++=  Seq(
   "-deprecation",
