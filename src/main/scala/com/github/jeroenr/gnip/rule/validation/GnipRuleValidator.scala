@@ -48,13 +48,15 @@ object GnipRuleValidator {
   private def gnipKeywordPhrase: Parser[String] = P((keywordGroup+)!).opaque("<phrase>")
 
   private def notOnly(p: Parser[String]) = P(!((p+) ~ End))
-  private def guards = notOnly(stopWord).opaque("NOT ONLY STOPWORDS") ~/ (notOnly("-" ~~ quotedKeyword) ~/ notOnly("-" ~~ keyword) ~/ notOnly("-" ~~ keywordsInParentheses)).opaque("NOT ONLY NEGATED")
+  private def guards = notOnly(stopWord).opaque("NOT ONLY STOPWORDS") ~/ (notOnly("-" ~~ quotedKeyword) ~/ notOnly("-" ~~ keyword) ~/ notOnly("-" ~~ keywordsInParentheses)).opaque("NOT ONLY NEGATED TERMS")
 
   def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
-    case Success(matched, index) => scala.util.Success(matched)
+    case Success(matched, index) =>
+      log.debug(s"Matched: $matched")
+      scala.util.Success(matched)
     case f @ Failure(lastParser, index, extra) => {
       val parseError = ParseError(f)
-      log.warn(s"Failed to parse rule at $lastParser when applying ${extra.traced.trace}. Cause: ${parseError.getMessage}")
+      log.warn(s"Failed to parse rule, expected '$lastParser'. Trace: ${parseError.getMessage}")
       scala.util.Failure(parseError)
     }
   }
