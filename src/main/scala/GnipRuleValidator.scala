@@ -24,13 +24,13 @@ object GnipRuleValidator {
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@_"))
   private val operators = P(OPERATORS.map(_ ~~ operatorParam.?).reduceLeft(_ | _))
 
-  private val keyword = P((!"OR" ~ operators | (CharIn("#@").? ~~ wordChar ~~ (wordChar | specialChar).repX)).!)
+  private val keyword = P((!"OR" ~ (operators | (CharIn("#@").? ~~ wordChar ~~ (wordChar | specialChar).repX))).!)
 
   private val maybeNegatedKeyword = P(("-".? ~~ keyword).!)
 
   private val quotedKeyword = P(("\"".! ~ maybeNegatedKeyword.rep(min = 1) ~ "\"" ~~ ("~" ~~ number).?).!)
 
-  private val keywordGroupWithoutOrClause = P((maybeNegatedKeyword | ("-".? ~~ quotedKeyword) | ("-".? ~~ keywordsInParentheses)).!)
+  private val keywordGroupWithoutOrClause = P((("-".? ~~ quotedKeyword) | maybeNegatedKeyword | ("-".? ~~ keywordsInParentheses)).!)
   private val keywordGroup = P((orClause | keywordGroupWithoutOrClause).!)
 
   private def keywordsInParentheses = P(("(".! ~ gnipKeywordPhrase ~ ")").!)

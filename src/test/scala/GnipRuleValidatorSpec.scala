@@ -1,8 +1,6 @@
-
 import org.scalatest._
 
 class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
-
   "Gnip rule parser" should {
     "accept single character" in {
       GnipRuleValidator("h").success
@@ -190,9 +188,6 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept multiple powertrack operators" in {
       GnipRuleValidator("lang:en has:links from:8744 contains:help url_contains:foo").success
     }
-    "accept combination of all" in {
-      GnipRuleValidator("(gnip OR from:688583 OR @gnip) (\"powertrack -operators\" OR \"streaming code\"~4) contains:help -lang:en").success
-    }
     "NOT accept OR missing terms after" in {
       GnipRuleValidator("this OR").failure
     }
@@ -210,6 +205,27 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     }
     "accept OR" in {
       GnipRuleValidator("this OR that").success
+    }
+    "accept multiple OR" in {
+      GnipRuleValidator("this OR that OR these").success
+    }
+    "accept OR between groups" in {
+      GnipRuleValidator("(this that) OR (that these)").success
+    }
+    "accept OR between group and keyword" in {
+      GnipRuleValidator("(this that) OR that").success
+    }
+    "accept OR between keyword and group" in {
+      GnipRuleValidator("that OR (this that)").success
+    }
+    "accept OR between quotes" in {
+      GnipRuleValidator("\"the boat\" OR \"that boat\"").success
+    }
+    "accept OR between quote and keyword" in {
+      GnipRuleValidator("\"the boat\" OR that").success
+    }
+    "accept OR between keyword and quote" in {
+      GnipRuleValidator("that OR \"the boat\"").success
     }
     "accept full syntax" in {
       GnipRuleValidator("(gnip OR from:688583 OR @gnip OR datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github").success
