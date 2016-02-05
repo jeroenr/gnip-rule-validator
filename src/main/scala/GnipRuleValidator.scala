@@ -18,17 +18,17 @@ object GnipRuleValidator {
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 
   private val stopWord = P(StringIn(STOP_WORDS: _*).!)
-  private val wordChar = P(CharIn('a' to 'z') | CharIn('A' to 'Z'))
-  private val numbers = P(CharIn('0' to '9'))
+  private val wordChar = P(CharIn('a' to 'z') | CharIn('A' to 'Z') | CharIn("_"))
+  private val number = P(CharIn('0' to '9'))
   private val operatorParam = P(":" ~~ wordChar.repX(min = 1).!)
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@"))
-  private val operators = OPERATORS.map(_ ~~ operatorParam).reduceLeft(_ | _)
+  private val operators = P(OPERATORS.map(_ ~~ operatorParam).reduceLeft(_ | _))
 
   private val keyword = P((!"OR" ~ CharIn("#@").? ~~ wordChar ~~ (wordChar | specialChar).repX | operators).!)
 
   private val maybeNegatedKeyword = P(("-".? ~~ keyword).!)
 
-  private val quotedKeyword = P(("\"".! ~ maybeNegatedKeyword.rep(min = 1) ~ "\"" ~~ ("~" ~~ numbers).?).!)
+  private val quotedKeyword = P(("\"".! ~ maybeNegatedKeyword.rep(min = 1) ~ "\"" ~~ ("~" ~~ number).?).!)
 
   private val keywordGroupWithoutOrClause = P((maybeNegatedKeyword | ("-".? ~~ quotedKeyword) | ("-".? ~~ keywordsInParentheses)).!)
   private val keywordGroup = P((keywordGroupWithoutOrClause | orClause).!)
@@ -42,7 +42,7 @@ object GnipRuleValidator {
 
   private def guards = notOnly(stopWord) ~ notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ keywordsInParentheses)
 
-  def apply(rule: String) = P(guards ~ gnipKeywordPhrase).parse(rule) match {
+  def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
     case Parsed.Success(matched, index) => scala.util.Success(matched)
     case Parsed.Failure(lastParser, index, extra) =>
       println(extra.traced.trace)
