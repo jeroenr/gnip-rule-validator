@@ -14,6 +14,7 @@ object GnipRuleValidator {
     NoTrace(" ".rep)
   }
   import fastparse.noApi._
+  import fastparse.core.Parsed._
   import White._
 
   implicit class RichParser[T](p: Parser[T]) {
@@ -48,7 +49,7 @@ object GnipRuleValidator {
   private def guards = notOnly(stopWord) ~ notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ keywordsInParentheses)
 
   def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
-    case Parsed.Success(matched, index) => scala.util.Success(matched)
-    case Parsed.Failure(lastParser, index, extra) => scala.util.Failure(new RuntimeException(extra.traced.trace))
+    case Success(matched, index) => scala.util.Success(matched)
+    case Failure(lastParser, index, extra) => scala.util.Failure(new RuntimeException(extra.traced.trace))
   }
 }
