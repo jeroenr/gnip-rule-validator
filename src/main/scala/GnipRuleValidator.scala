@@ -15,7 +15,9 @@ object GnipRuleValidator {
 
   implicit class RichParser[T](p: Parser[T]) {
     def + = p.rep(min = 1)
-    def * = p.repX
+    def ++ = p.repX(min = 1)
+    def * = p.rep
+    def ** = p.repX
   }
 
   val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
@@ -24,11 +26,11 @@ object GnipRuleValidator {
   private val stopWord = P(StringIn(STOP_WORDS: _*)!)
   private val number = P(CharIn('0' to '9'))
   private val wordChar = P(CharIn('a' to 'z') | CharIn('A' to 'Z') | number | "_")
-  private val operatorParam = P(":" ~~ wordChar.repX(min = 1))
+  private val operatorParam = P(":" ~~ (wordChar++))
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@"))
   private val operators = P(OPERATORS.map(_ ~~ (operatorParam?)).reduceLeft(_ | _))
 
-  private val keyword = P((!"OR" ~ (operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | specialChar)*))))!)
+  private val keyword = P((!"OR" ~ (operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | specialChar)**))))!)
   private val maybeNegatedKeyword = P((("-"?) ~~ keyword)!)
   private val quotedKeyword = P(("\"" ~ (maybeNegatedKeyword+) ~ "\"" ~~ (("~" ~~ number)?))!)
 
@@ -37,11 +39,9 @@ object GnipRuleValidator {
 
   private def keywordsInParentheses = P("(" ~ gnipKeywordPhrase ~ ")")
   private def orClause = P(keywordGroupWithoutOrClause ~ "OR" ~ !"-" ~ gnipKeywordPhrase)
-
   private def gnipKeywordPhrase: Parser[String] = P((keywordGroup+)!)
 
   private def notOnly(p: Parser[String]) = P(!((p+) ~ End))
-
   private def guards = notOnly(stopWord) ~ notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ keywordsInParentheses)
 
   def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
