@@ -1,4 +1,7 @@
+package com.github.jeroenr.gnip.rule.validation
+
 import fastparse.WhitespaceApi
+
 import scala.io.Source
 import scala.language.postfixOps
 

@@ -1,3 +1,5 @@
+package com.github.jeroenr.gnip.rule.validation
+
 import org.scalatest._
 
 class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
