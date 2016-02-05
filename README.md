@@ -1,5 +1,5 @@
 # Gnip rule validator
-This is a Gnip rule validator using Scala parser combinators.
+This is a Gnip rule validator using [the FastParse library](https://lihaoyi.github.io/fastparse/).
 
 A Gnip rule has the following restrictions
 
