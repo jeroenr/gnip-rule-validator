@@ -30,7 +30,7 @@ object GnipRuleValidator {
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@"))
   private val operators = P(OPERATORS.map(_ ~~ (operatorParam?)).reduceLeft(_ | _))
 
-  private val keyword = P((!"OR" ~ (operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | specialChar)**))))!)
+  private val keyword = P((operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | specialChar)**)))!).filter(_ != "OR")
   private val maybeNegatedKeyword = P((("-"?) ~~ keyword)!)
   private val quotedKeyword = P(("\"" ~ (maybeNegatedKeyword+) ~ "\"" ~~ (("~" ~~ number)?))!)
 
@@ -44,8 +44,10 @@ object GnipRuleValidator {
   private def notOnly(p: Parser[String]) = P(!((p+) ~ End))
   private def guards = notOnly(stopWord) ~ notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ keywordsInParentheses)
 
-  def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
+  def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase.log("bla") ~ End).parse(rule) match {
     case Parsed.Success(matched, index) => scala.util.Success(matched)
-    case Parsed.Failure(lastParser, index, extra) => scala.util.Failure(new RuntimeException(extra.traced.trace))
+    case Parsed.Failure(lastParser, index, extra) =>
+      println(s"traced: ${extra.traced.trace}")
+      scala.util.Failure(new RuntimeException(extra.traced.trace))
   }
 }
