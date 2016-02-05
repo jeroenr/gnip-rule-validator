@@ -49,8 +49,6 @@ object GnipRuleValidator {
 
   def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
     case Parsed.Success(matched, index) => scala.util.Success(matched)
-    case Parsed.Failure(lastParser, index, extra) =>
-      println(s"traced: ${extra.traced.trace}")
-      scala.util.Failure(new RuntimeException(extra.traced.trace))
+    case Parsed.Failure(lastParser, index, extra) => scala.util.Failure(new RuntimeException(extra.traced.trace))
   }
 }
