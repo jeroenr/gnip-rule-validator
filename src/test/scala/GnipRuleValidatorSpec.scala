@@ -149,7 +149,6 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("(hello (world) bla").failure
     }
     "accept single powertrack operator" in {
-      print("single powertrack: ")
       GnipRuleValidator("lang:EN").success
     }
     "NOT accept invalid use of powertrack operator" in {

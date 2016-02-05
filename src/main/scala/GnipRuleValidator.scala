@@ -20,7 +20,7 @@ object GnipRuleValidator {
   private val stopWord = P(StringIn(STOP_WORDS: _*).!)
   private val wordChar = P(CharIn('a' to 'z') | CharIn('A' to 'Z'))
   private val number = P(CharIn('0' to '9'))
-  private val operatorParam = P(":" ~~ wordChar.repX(min = 1).!)
+  private val operatorParam = P(":" ~~ (number | wordChar).repX(min = 1).!)
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@_"))
   private val operators = P(OPERATORS.map(_ ~~ operatorParam.?).reduceLeft(_ | _))
 
@@ -31,7 +31,7 @@ object GnipRuleValidator {
   private val quotedKeyword = P(("\"".! ~ maybeNegatedKeyword.rep(min = 1) ~ "\"" ~~ ("~" ~~ number).?).!)
 
   private val keywordGroupWithoutOrClause = P((maybeNegatedKeyword | ("-".? ~~ quotedKeyword) | ("-".? ~~ keywordsInParentheses)).!)
-  private val keywordGroup = P((keywordGroupWithoutOrClause | orClause).!)
+  private val keywordGroup = P((orClause | keywordGroupWithoutOrClause).!)
 
   private def keywordsInParentheses = P(("(".! ~ gnipKeywordPhrase ~ ")").!)
   private def orClause = P((keywordGroupWithoutOrClause ~ "OR".! ~ !"-" ~~ gnipKeywordPhrase).!)
