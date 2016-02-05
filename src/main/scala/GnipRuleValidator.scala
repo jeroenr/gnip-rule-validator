@@ -18,13 +18,13 @@ object GnipRuleValidator {
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 
   private val stopWord = P(StringIn(STOP_WORDS: _*).!)
-  private val wordChar = P(CharIn('a' to 'z') | CharIn('A' to 'Z') | CharIn("_"))
+  private val wordChar = P(CharIn('a' to 'z') | CharIn('A' to 'Z'))
   private val number = P(CharIn('0' to '9'))
   private val operatorParam = P(":" ~~ wordChar.repX(min = 1).!)
-  private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@"))
-  private val operators = P(OPERATORS.map(_ ~~ operatorParam).reduceLeft(_ | _))
+  private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@_"))
+  private val operators = P(OPERATORS.map(_ ~~ operatorParam.?).reduceLeft(_ | _))
 
-  private val keyword = P((!"OR" ~ CharIn("#@").? ~~ wordChar ~~ (wordChar | specialChar).repX | operators).!)
+  private val keyword = P((!"OR" ~ operators | (CharIn("#@").? ~~ wordChar ~~ (wordChar | specialChar).repX)).!)
 
   private val maybeNegatedKeyword = P(("-".? ~~ keyword).!)
 
@@ -43,9 +43,11 @@ object GnipRuleValidator {
   private def guards = notOnly(stopWord) ~ notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ keywordsInParentheses)
 
   def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
-    case Parsed.Success(matched, index) => scala.util.Success(matched)
+    case Parsed.Success(matched, index) =>
+      //      println(matched)
+      scala.util.Success(matched)
     case Parsed.Failure(lastParser, index, extra) =>
-      println(extra.traced.trace)
+      println(s"last parser: $lastParser, trace: ${extra.traced.trace}")
       scala.util.Failure(new RuntimeException(extra.traced.trace))
   }
 }
