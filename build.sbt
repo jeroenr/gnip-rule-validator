@@ -11,6 +11,8 @@ maintainer := "Jeroen Rosenberg <jeroen@oxyme.com>"
 //uncomment the following line if you want cross build
 // crossScalaVersions := Seq("2.10.4", "2.11.6")
 
+credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+
 publishTo := {
   val nexus = "https://oss.sonatype.org/"
   if (isSnapshot.value)
