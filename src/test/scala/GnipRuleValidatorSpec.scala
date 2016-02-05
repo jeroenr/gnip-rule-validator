@@ -80,6 +80,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "NOT accept only negated quoted words" in {
       GnipRuleValidator("-\"hello world!\" -\"bye world!\"").failure
     }
+    "NOT accept spaces between negation" in {
+      GnipRuleValidator("hello - world").failure
+    }
     "accept all combinations of optional negation and quoted words" in {
       GnipRuleValidator("\"hello world?\" bla -bla \"lol!\" bla").success
     }
