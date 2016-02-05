@@ -1,6 +1,7 @@
 package com.github.jeroenr.gnip.rule.validation
 
 import fastparse.WhitespaceApi
+import org.slf4j.LoggerFactory
 
 import scala.io.Source
 import scala.language.postfixOps
@@ -9,6 +10,8 @@ import scala.language.postfixOps
  * Created by jero on 3-2-16.
  */
 object GnipRuleValidator {
+  val log = LoggerFactory.getLogger(getClass)
+
   val White = WhitespaceApi.Wrapper {
     import fastparse.all._
     NoTrace(" ".rep)
@@ -23,7 +26,6 @@ object GnipRuleValidator {
     def * = p.rep
     def ** = p.repX
   }
-
   val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 
@@ -50,6 +52,10 @@ object GnipRuleValidator {
 
   def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
     case Success(matched, index) => scala.util.Success(matched)
-    case f @ Failure(lastParser, index, extra) => scala.util.Failure(ParseError(f))
+    case f @ Failure(lastParser, index, extra) => {
+      val parseError = ParseError(f)
+      log.warn(s"Failed to parse rule at $lastParser when applying ${extra.traced.trace}. Cause: ${parseError.getMessage}")
+      scala.util.Failure(parseError)
+    }
   }
 }
