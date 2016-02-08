@@ -1,3 +1,5 @@
+import ReleaseTransformations._
+
 name := """gnip-rule-validator"""
 
 scalaVersion := "2.11.7"
@@ -64,3 +66,18 @@ scalariformSettings
 //uncomment the following line if you want a java app packaging
 // enablePlugins(JavaAppPackaging)
 // enablePlugins(UniversalPlugin)
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  ReleaseStep(action = Command.process("publishSigned", _)),
+  setNextVersion,
+  commitNextVersion,
+  ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
+  pushChanges
+)
