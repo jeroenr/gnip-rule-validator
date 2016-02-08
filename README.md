@@ -7,7 +7,7 @@ import com.github.jeroenr.gnip.rule.validation.GnipRuleValidator
 import scala.util.{Success, Failure}
 
 // successful parse example
-GnipRuleValidator("(this OR that) (lang:en -from:justbieber)") // Success("(this OR that) (lang:en -from:justbieber)")
+GnipRuleValidator("(this OR that) (lang:en -from:justinbieber)") // Success("(this OR that) (lang:en -from:justbieber)")
 
 // failed parse example
 GnipRuleValidator("a the https") // Failure(fastparse.core.ParseError: found "a the https", expected NOT ONLY STOPWORDS at index 0
