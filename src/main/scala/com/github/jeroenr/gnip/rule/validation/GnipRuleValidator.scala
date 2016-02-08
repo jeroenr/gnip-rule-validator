@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 
 import scala.io.Source
 import scala.language.postfixOps
+import scala.util.Try
 
 /**
  * Created by jero on 3-2-16.
@@ -50,7 +51,7 @@ object GnipRuleValidator {
   private def notOnly(p: Parser[String]) = P(!((p+) ~ End))
   private def guards = notOnly(stopWord).opaque("NOT ONLY STOPWORDS") ~/ (notOnly("-" ~~ quotedKeyword) ~/ notOnly("-" ~~ keyword) ~/ notOnly("-" ~~ keywordsInParentheses)).opaque("NOT ONLY NEGATED TERMS")
 
-  def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
+  def apply(rule: String): Try[String] = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
     case Success(matched, index) =>
       log.debug(s"Matched: $matched")
       scala.util.Success(matched)
