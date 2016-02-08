@@ -45,13 +45,13 @@ object GnipRuleValidator {
   private val keywordGroup = P(orClause | keywordGroupWithoutOrClause).opaque("<keyword-group>")
 
   private def keywordsInParentheses = P("(" ~ gnipKeywordPhrase ~ ")")
-  private def orClause = P(!((stopWord+) ~ "OR") ~ keywordGroupWithoutOrClause ~ "OR" ~ notOnly(stopWord) ~ !"-" ~ gnipKeywordPhrase)
-  private def gnipKeywordPhrase: Parser[String] = P((keywordGroup+)!).opaque("<phrase>")
-
+  private def orClause = P(!(((stopWord+) | ("-" ~~ (keywordGroupWithoutOrClause+))) ~ "OR") ~ keywordGroupWithoutOrClause ~ "OR" ~ notOnly(stopWord) ~ gnipKeywordPhrase)
   private def notOnly(p: Parser[String]) = P(!((p+) ~ End))
-  private def guards = notOnly(stopWord).opaque("NOT ONLY STOPWORDS") ~/ (notOnly("-" ~~ quotedKeyword) ~/ notOnly("-" ~~ keyword) ~/ notOnly("-" ~~ keywordsInParentheses)).opaque("NOT ONLY NEGATED TERMS")
+  private def guards = notOnly(stopWord).opaque("NOT ONLY STOPWORDS") ~ (notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ keywordsInParentheses)).opaque("NOT ONLY NEGATED TERMS")
 
-  def apply(rule: String): Try[String] = P(Start ~ guards ~ gnipKeywordPhrase ~ End).parse(rule) match {
+  private def gnipKeywordPhrase: Parser[String] = P(guards ~ (keywordGroup+)!).opaque("<phrase>")
+
+  def apply(rule: String): Try[String] = P(Start ~ gnipKeywordPhrase ~ End).parse(rule) match {
     case Success(matched, index) =>
       log.debug(s"Matched: $matched")
       scala.util.Success(matched)

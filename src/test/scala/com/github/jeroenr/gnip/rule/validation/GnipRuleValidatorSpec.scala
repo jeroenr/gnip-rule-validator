@@ -209,8 +209,14 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "NOT accept OR missing terms before" in {
       GnipRuleValidator("OR bla").failure
     }
-    "NOT accept negated OR" in {
+    "NOT accept negated OR right" in {
       GnipRuleValidator("these OR -that").failure
+    }
+    "NOT accept negated OR left" in {
+      GnipRuleValidator("-these OR that").failure
+    }
+    "accept negated OR followed by positive term(s)" in {
+      GnipRuleValidator("these OR -that bla OR these").success
     }
     "accept OR" in {
       GnipRuleValidator("these OR that").success
