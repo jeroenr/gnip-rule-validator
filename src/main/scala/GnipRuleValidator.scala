@@ -23,28 +23,26 @@ object GnipRuleValidator {
   val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 
-  private val stopWord = P(StringIn(STOP_WORDS: _*)!)
   private val number = P(CharIn('0' to '9'))
   private val wordChar = P(CharIn('a' to 'z') | CharIn('A' to 'Z') | number | "_")
+  private val stopWord = P(StringIn(STOP_WORDS: _*)!)
   private val operatorParam = P(":" ~~ (wordChar++))
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@"))
   private val operators = P(OPERATORS.map(_ ~~ (operatorParam?)).reduceLeft(_ | _))
 
   private val keyword = P((operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | specialChar)**)))!).filter(_ != "OR")
-  private val maybeNegatedKeyword = P((("-"?) ~~ keyword)!)
-  private val quotedKeyword = P(("\"" ~ (maybeNegatedKeyword+) ~ "\"" ~~ (("~" ~~ number)?))!)
+  private val quotedKeyword = P(("\"" ~ ((("-"?) ~~ keyword)+) ~ "\"" ~~ (("~" ~~ number)?))!)
 
-  private val keywordGroupWithoutOrClause = P((("-"?) ~~ quotedKeyword) | maybeNegatedKeyword | (("-"?) ~~ keywordsInParentheses))
-  private val keywordGroup = P(orClause | keywordGroupWithoutOrClause)
+  private val rule = P(("-"?) ~~ (keyword | quotedKeyword | groupedRules))
+  private def orRule = P(rule ~ "OR" ~ !"-" ~ gnipRules)
+  private def groupedRules = P("(" ~ gnipRules ~ ")")
 
-  private def keywordsInParentheses = P("(" ~ gnipKeywordPhrase ~ ")")
-  private def orClause = P(keywordGroupWithoutOrClause ~ "OR" ~ !"-" ~ gnipKeywordPhrase)
-  private def gnipKeywordPhrase: Parser[String] = P((keywordGroup+)!)
+  private def gnipRules: Parser[String] = P(((orRule | rule)+)!)
 
   private def notOnly(p: Parser[String]) = P(!((p+) ~ End))
-  private def guards = notOnly(stopWord) ~ notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ keywordsInParentheses)
+  private def guards = notOnly(stopWord) ~ notOnly("-" ~~ quotedKeyword) ~ notOnly("-" ~~ keyword) ~ notOnly("-" ~~ groupedRules)
 
-  def apply(rule: String) = P(Start ~ guards ~ gnipKeywordPhrase.log("bla") ~ End).parse(rule) match {
+  def apply(rule: String) = P(Start ~ guards ~ gnipRules.log("bla") ~ End).parse(rule) match {
     case Parsed.Success(matched, index) => scala.util.Success(matched)
     case Parsed.Failure(lastParser, index, extra) =>
       println(s"traced: ${extra.traced.trace}")
