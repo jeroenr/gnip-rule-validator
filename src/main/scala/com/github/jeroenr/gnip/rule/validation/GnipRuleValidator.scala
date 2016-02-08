@@ -5,20 +5,16 @@ import org.slf4j.LoggerFactory
 
 import scala.io.Source
 import scala.language.postfixOps
-import scala.util.Try
 
 /**
  * Created by jero on 3-2-16.
  */
-object GnipRuleValidator {
-  val log = LoggerFactory.getLogger(getClass)
-
+class GnipRuleParser(source: String) {
   val White = WhitespaceApi.Wrapper {
     import fastparse.all._
     NoTrace(" ".rep)
   }
   import fastparse.noApi._
-  import fastparse.core.Parsed._
   import White._
 
   implicit class RichParser[T](p: Parser[T]) {
@@ -27,7 +23,7 @@ object GnipRuleValidator {
     def * = p.rep
     def ** = p.repX
   }
-  val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream("/operators")).getLines.toSeq
+  val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream(s"/operators/$source")).getLines.toSeq
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
 
   private val stopWord = P(StringIn(STOP_WORDS: _*)!)
@@ -51,7 +47,17 @@ object GnipRuleValidator {
 
   private def gnipKeywordPhrase: Parser[String] = P(guards ~ (keywordGroup+)!).opaque("<phrase>")
 
-  def apply(rule: String): Try[String] = P(Start ~ gnipKeywordPhrase ~ End).parse(rule) match {
+  def parse(rule: String) = P(Start ~ gnipKeywordPhrase ~ End).parse(rule)
+
+}
+
+object GnipRuleValidator {
+  import fastparse.core.Parsed._
+  import fastparse.core.ParseError
+
+  val log = LoggerFactory.getLogger(getClass)
+
+  def apply(rule: String, source: String) = new GnipRuleParser(source).parse(rule) match {
     case Success(matched, index) =>
       log.debug(s"Matched: $matched")
       scala.util.Success(matched)
