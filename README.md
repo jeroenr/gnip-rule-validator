@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/jeroenr/gnip-rule-validator.svg?branch=master)](https://travis-ci.org/jeroenr/gnip-rule-validator)
-# Gnip rule validator
+# Gnip rule validator [![Build Status](https://travis-ci.org/jeroenr/gnip-rule-validator.svg?branch=master)](https://travis-ci.org/jeroenr/gnip-rule-validator)
 This is a Gnip rule validator using [the FastParse library](https://lihaoyi.github.io/fastparse/).
 
 A Gnip rule has the following restrictions
