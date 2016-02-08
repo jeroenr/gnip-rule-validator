@@ -29,15 +29,17 @@ class GnipRuleParser(source: String) {
   private val stopWord = P(StringIn(STOP_WORDS: _*)!)
   private val number = P(CharIn('0' to '9'))
   private val wordChar = P(CharIn('a' to 'z') | CharIn('A' to 'Z') | number | "_")
+  private val quotedWord = P(("\"" ~ (wordChar+) ~ "\"")!)
   private val digit = P((number++) ~ (("." ~~ (number ++))?))
   private val latOrLon = P(("-"?) ~~ digit)
   private val boundingBox = P("[" ~ latOrLon.rep(min = 4, max = 4) ~ "]")
-  private val operatorParam = P(":" ~~ (boundingBox | (wordChar++)))
+  private val operatorParam = P(":" ~~ (boundingBox | quotedWord | (wordChar++)))
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@"))
   private val operators = P(OPERATORS.map(_ ~~ (operatorParam?)).reduceLeft(_ | _))
 
   private val keyword = P((operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | specialChar)**)))!).filter(_ != "OR")
   private val maybeNegatedKeyword = P((("-"?) ~~ keyword)!)
+
   private val quotedKeyword = P(("\"" ~ (maybeNegatedKeyword+) ~ "\"" ~~ (("~" ~~ number)?))!)
 
   private val keywordGroupWithoutOrClause = P((("-"?) ~~ quotedKeyword) | maybeNegatedKeyword | (("-"?) ~~ keywordsInParentheses))

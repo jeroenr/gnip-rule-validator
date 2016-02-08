@@ -254,6 +254,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept bounding box operator" in {
       GnipRuleValidator("profile_bounding_box:[-105.301758 39.964069 -105.178505 40.09455]", "twitter").success
     }
+    "accept quoted keywords as operator param" in {
+      GnipRuleValidator("profile_subregion:\"San Francisco County\"", "twitter").success
+    }
     "accept full syntax" in {
       GnipRuleValidator("(gnip OR from:688583 OR @gnip OR datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github", "twitter").success
     }
