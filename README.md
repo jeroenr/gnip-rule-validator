@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/jeroenr/gnip-rule-validator.svg?branch=master)](https://travis-ci.org/jeroenr/gnip-rule-validator)
 # Gnip rule validator
 This is a Gnip rule validator using [the FastParse library](https://lihaoyi.github.io/fastparse/).
 
