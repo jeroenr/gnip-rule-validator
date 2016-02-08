@@ -210,25 +210,31 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("OR bla").failure
     }
     "NOT accept negated OR" in {
-      GnipRuleValidator("this OR -that").failure
+      GnipRuleValidator("these OR -that").failure
     }
     "accept OR" in {
-      GnipRuleValidator("this OR that").success
+      GnipRuleValidator("these OR that").success
+    }
+    "NOT accept OR with only stop words left clause" in {
+      GnipRuleValidator("this OR that").failure
+    }
+    "NOT accept OR with only stop words right clause" in {
+      GnipRuleValidator("that OR this").failure
     }
     "accept ORbit" in {
       GnipRuleValidator("ORbit").success
     }
     "accept multiple OR" in {
-      GnipRuleValidator("this OR that OR these").success
+      GnipRuleValidator("these OR that OR these").success
     }
     "accept OR between groups" in {
-      GnipRuleValidator("(this that) OR (that these)").success
+      GnipRuleValidator("(these that) OR (that these)").success
     }
     "accept OR between group and keyword" in {
-      GnipRuleValidator("(this that) OR that").success
+      GnipRuleValidator("(these that) OR that").success
     }
     "accept OR between keyword and group" in {
-      GnipRuleValidator("that OR (this that)").success
+      GnipRuleValidator("that OR (these that)").success
     }
     "accept OR between quotes" in {
       GnipRuleValidator("\"the boat\" OR \"that boat\"").success

@@ -45,7 +45,7 @@ object GnipRuleValidator {
   private val keywordGroup = P(orClause | keywordGroupWithoutOrClause).opaque("<keyword-group>")
 
   private def keywordsInParentheses = P("(" ~ gnipKeywordPhrase ~ ")")
-  private def orClause = P(keywordGroupWithoutOrClause ~ "OR" ~ !"-" ~ gnipKeywordPhrase)
+  private def orClause = P(!((stopWord+) ~ "OR") ~ keywordGroupWithoutOrClause ~ "OR" ~ notOnly(stopWord) ~ !"-" ~ gnipKeywordPhrase)
   private def gnipKeywordPhrase: Parser[String] = P((keywordGroup+)!).opaque("<phrase>")
 
   private def notOnly(p: Parser[String]) = P(!((p+) ~ End))
