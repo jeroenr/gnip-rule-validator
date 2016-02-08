@@ -23,6 +23,8 @@ publishTo := {
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
+
 pomIncludeRepository := { _ => false }
 
 pomExtra :=
