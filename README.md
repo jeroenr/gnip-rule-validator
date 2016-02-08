@@ -1,5 +1,5 @@
 # Gnip rule validator [![Build Status](https://travis-ci.org/jeroenr/gnip-rule-validator.svg?branch=master)](https://travis-ci.org/jeroenr/gnip-rule-validator)
-This is a Gnip rule validator using [the FastParse library](https://lihaoyi.github.io/fastparse/).
+This is a Gnip rule validator that parser Gnip rules using the [the FastParse library](https://lihaoyi.github.io/fastparse/). It's useful to validate the syntax of Gnip rules before submitting them and applying them to your stream.
 
 ## Disclaimer
 A subset of the [Gnip rule syntax](http://support.gnip.com/apis/powertrack/rules.html) is now supported:
@@ -11,9 +11,6 @@ A subset of the [Gnip rule syntax](http://support.gnip.com/apis/powertrack/rules
 3. Negated ORs are not supported. Such as: apple OR -lang:en
 
 4. A rule keyword or input can start with either a digit (0-9) or any non-punctuation character. Current punctuation characters are defined as the ASCII characters below. Any keyword or input that needs to start with or contains punctuation must be “quoted”. A keyword can not have a colon or parentheses unless you quote it.
-
-I chose to support only generic (available across all sources) operators. If you want to support source specific operators, just add them to the src/main/resources/operators file.
-
 ```
 ! % & \ ' ( ) * + - . / ; < = > ? \\ , : # @ \t \r \n " [] _
 and the Unicode ranges:
@@ -23,9 +20,10 @@ U+2000 -- U+2BFF
 U+FF00 -- U+FF03
 U+FF05 -- U+FF0F
 ```
+## Support more operators
+I chose to support only generic (available across all sources) operators. If you want to support source specific operators, just add them to the *src/main/resources/operators* file.
 
 ## Contributing
-
 Pull requests are always welcome
 
 Not sure if that typo is worth a pull request? Found a bug and know how to fix it? Do it! We will appreciate it. Any significant improvement should be documented as a [GitHub issue](https://github.com/jeroenr/gnip-rule-validator/issues) before anybody starts working on it.
