@@ -67,6 +67,10 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept quoted word" in {
       GnipRuleValidator("\"hello\"").success
     }
+    "NOT accept wrong quotes" in {
+      GnipRuleValidator("'hello'").failure
+      GnipRuleValidator("''hello''").failure
+    }
     "accept quoted words" in {
       GnipRuleValidator("\"hello world!\"").success
     }
