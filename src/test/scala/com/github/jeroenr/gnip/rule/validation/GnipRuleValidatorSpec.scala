@@ -251,6 +251,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept OR between keyword and quote" in {
       GnipRuleValidator("that OR \"the boat\"", "twitter").success
     }
+    "accept bounding box operator" in {
+      GnipRuleValidator("profile_bounding_box:[-105.301758 39.964069 -105.178505 40.09455]", "twitter").success
+    }
     "accept full syntax" in {
       GnipRuleValidator("(gnip OR from:688583 OR @gnip OR datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github", "twitter").success
     }

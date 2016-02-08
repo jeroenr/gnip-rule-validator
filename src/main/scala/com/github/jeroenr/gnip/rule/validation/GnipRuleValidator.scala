@@ -1,6 +1,6 @@
 package com.github.jeroenr.gnip.rule.validation
 
-import fastparse.WhitespaceApi
+import fastparse.{ all, WhitespaceApi }
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
@@ -29,7 +29,10 @@ class GnipRuleParser(source: String) {
   private val stopWord = P(StringIn(STOP_WORDS: _*)!)
   private val number = P(CharIn('0' to '9'))
   private val wordChar = P(CharIn('a' to 'z') | CharIn('A' to 'Z') | number | "_")
-  private val operatorParam = P(":" ~~ (wordChar++))
+  private val digit = P((number++) ~ (("." ~~ (number ++))?))
+  private val latOrLon = P(("-"?) ~~ digit)
+  private val boundingBox = P("[" ~ latOrLon.rep(min = 4, max = 4) ~ "]")
+  private val operatorParam = P(":" ~~ (boundingBox | (wordChar++)))
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@"))
   private val operators = P(OPERATORS.map(_ ~~ (operatorParam?)).reduceLeft(_ | _))
 
