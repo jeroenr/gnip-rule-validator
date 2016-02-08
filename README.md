@@ -6,6 +6,15 @@ This is a Gnip rule validator that parser Gnip rules using the [the FastParse li
 import com.github.jeroenr.gnip.rule.validation.GnipRuleValidator
 import scala.util.{Success, Failure}
 
+// successful parse example
+GnipRuleValidator("(this OR that) (lang:en -from:justbieber)") // Success("(this OR that) (lang:en -from:justbieber)")
+
+// failed parse example
+GnipRuleValidator("a the https") // Failure(fastparse.core.ParseError: found "a the https", expected NOT ONLY STOPWORDS at index 0
+// a the https
+// ^)
+
+// pattern matching example
 GnipRuleValidator("(gnip OR from:688583 OR @gnip OR datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github") match {
   case Success(result) => println(s"Parsed: $result")
   case Failure(error) => throw error
