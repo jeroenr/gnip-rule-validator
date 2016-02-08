@@ -2,6 +2,11 @@
 This is a Gnip rule validator that parser Gnip rules using the [the FastParse library](https://lihaoyi.github.io/fastparse/). It's useful to validate the syntax of Gnip rules before submitting them and applying them to your stream.
 
 ## Usage
+Add the dependency to your build.sbt
+```scala
+libraryDependencies += "com.github.jeroenr" %% "gnip-rule-validator" % "0.5"
+```
+Use it!
 ```scala
 import com.github.jeroenr.gnip.rule.validation.GnipRuleValidator
 import scala.util.{Success, Failure}
