@@ -1,6 +1,17 @@
 # Gnip rule validator [![Build Status](https://travis-ci.org/jeroenr/gnip-rule-validator.svg?branch=master)](https://travis-ci.org/jeroenr/gnip-rule-validator)
 This is a Gnip rule validator that parser Gnip rules using the [the FastParse library](https://lihaoyi.github.io/fastparse/). It's useful to validate the syntax of Gnip rules before submitting them and applying them to your stream.
 
+## Usage
+```scala
+import com.github.jeroenr.gnip.rule.validation.GnipRuleValidator
+import scala.util.{Success, Failure}
+
+GnipRuleValidator("(gnip OR from:688583 OR @gnip OR datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github") match {
+  case Success(result) => println(s"Parsed: $result")
+  case Failure(error) => throw error
+}
+```
+
 ## Disclaimer
 A subset of the [Gnip rule syntax](http://support.gnip.com/apis/powertrack/rules.html) is now supported:
 
