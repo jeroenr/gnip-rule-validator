@@ -1,12 +1,12 @@
 name := """gnip-rule-validator"""
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 packageSummary := "Gnip Rule Validator"
 
-packageDescription := "Gnip Rule Validator using parser combinators"
+packageDescription := "Gnip Rule Validator using FastParse"
 
-maintainer := "Jeroen Rosenberg <jeroen@oxyme.com>"
+maintainer := "Jeroen Rosenberg <jeroen.rosenberg@gmail.com>"
 
 organization := "com.github.jeroenr"
 
@@ -52,11 +52,9 @@ scalacOptions ++=  Seq(
 )
 
 libraryDependencies ++= Seq(
-//  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
   "com.lihaoyi" %% "fastparse" % "0.3.4",
   "ch.qos.logback" % "logback-classic" % "1.1.2",
-  "org.scalatest" %% "scalatest" % "2.2.1" % "test",
-  "com.lihaoyi" %% "fastparse" % "0.3.4"
+  "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
 
 scalariformSettings
