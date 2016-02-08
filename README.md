@@ -29,7 +29,7 @@ U+FF00 -- U+FF03
 U+FF05 -- U+FF0F
 ```
 
-## Contributing.
+## Contributing
 
 Pull requests are always welcome
 
