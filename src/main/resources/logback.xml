@@ -1,12 +1,11 @@
-<configuration debug="false" scan="true" scanPeriod="30 seconds">
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <withJansi>true</withJansi>
+<configuration>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%msg%n</pattern>
+      <pattern>%d{ISO8601} |%-5.5p|%-25.25t|%-50.50c| %4L - %m%n</pattern>
     </encoder>
   </appender>
 
   <root level="debug">
-      <appender-ref ref="STDOUT" />
+      <appender-ref ref="CONSOLE" />
   </root>
 </configuration>
