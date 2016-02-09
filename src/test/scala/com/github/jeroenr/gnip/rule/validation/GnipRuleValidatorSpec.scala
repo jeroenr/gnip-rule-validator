@@ -287,9 +287,11 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     }
     "NOT accept wrong use of lang operator" in {
       GnipRuleValidator("lang:xx", "twitter").failure
+      GnipRuleValidator("lang:eng", "twitter").failure
     }
     "NOT accept wrong use of country_code operator" in {
       GnipRuleValidator("country_code:XX", "twitter").failure
+      GnipRuleValidator("country_code:USA", "twitter").failure
     }
     "accept quoted keywords as operator param" in {
       GnipRuleValidator("profile_subregion:\"San Francisco County\"", "twitter").success
