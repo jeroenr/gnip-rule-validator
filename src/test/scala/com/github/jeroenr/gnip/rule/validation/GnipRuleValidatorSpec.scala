@@ -74,6 +74,12 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept quoted words" in {
       GnipRuleValidator("\"hello world!\"", "twitter").success
     }
+    "accept parentheses in quoted words" in {
+      GnipRuleValidator("\" Mountain Time(US & Canada) \"", "twitter").success
+    }
+    "accept parentheses in quoted words in group" in {
+      GnipRuleValidator("(bla OR \" Mountain Time(US & Canada) \")", "twitter").success
+    }
     "accept quoted negated words" in {
       GnipRuleValidator("\"hello -world!\"", "twitter").success
     }
@@ -236,6 +242,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept OR between groups" in {
       GnipRuleValidator("(these that) OR (that these)", "twitter").success
     }
+    "accept OR in groups" in {
+      GnipRuleValidator("(these OR those)", "twitter").success
+    }
     "accept OR between group and keyword" in {
       GnipRuleValidator("(these that) OR that", "twitter").success
     }
@@ -280,6 +289,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("klout_score:1000..10000", "twitter").success
       GnipRuleValidator("klout_score:1000", "twitter").success
     }
+    "accept time_zone operator" in {
+      GnipRuleValidator("contains:\" Mountain Time  \"", "twitter").success
+    }
     "NOT accept wrong use of statuses_count operator" in {
       GnipRuleValidator("statuses_count:1000...10000", "twitter").failure
       GnipRuleValidator("statuses_count:1000.0", "twitter").failure
@@ -297,7 +309,7 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("profile_subregion:\"San Francisco County\"", "twitter").success
     }
     "accept full syntax" in {
-      GnipRuleValidator("(gnip OR from:688583 OR @gnip OR datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github", "twitter").success
+      GnipRuleValidator("(gnip OR from:688583 OR @gnip OR datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github bio_contains:developer has:links url_contains:github source:web (friends_count:1 OR followers_count:2000 OR listed_count:500 OR statuses_count:1000..10000 OR is:verified OR klout_score:50) (country_code:US OR (bio_location:CO OR bio_location_contains:\"Boulder\") OR time_zone:\"Mountain Time (US & Canada)\") -is:retweet (lang:en OR twitter_lang:en)", "twitter").success
     }
     "accept gender operator for Foursquare only" in {
       GnipRuleValidator("gender:male", "twitter").failure
