@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 
 import scala.io.Source
 import scala.language.postfixOps
+import scala.util.Try
 
 /**
  * Created by jero on 3-2-16.
@@ -23,10 +24,13 @@ class GnipRuleParser(source: String) {
     def * = p.rep
     def ** = p.repX
   }
-  val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream(s"/operators/$source")).getLines.toSeq
-  val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
-  val LANG_CODES = Source.fromInputStream(getClass.getResourceAsStream("/lang_codes")).getLines.toSeq
-  val COUNTRY_CODES = Source.fromInputStream(getClass.getResourceAsStream("/country_codes")).getLines.toSeq
+  val OPERATORS = Try(readLines(s"/operators/$source")).getOrElse(throw new IllegalArgumentException(s"Source $source is not supported"))
+  val STOP_WORDS = readLines("/stopwords")
+  val LANG_CODES = readLines("/lang_codes")
+  val COUNTRY_CODES = readLines("/country_codes")
+
+  private def readLines(path: String) =
+    Source.fromInputStream(getClass.getResourceAsStream(path)).getLines.toSeq
 
   private val stopWord = P(StringIn(STOP_WORDS: _*)!)
   private val number = P(CharIn('0' to '9'))
@@ -52,7 +56,6 @@ class GnipRuleParser(source: String) {
   private val langOp = P((langOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ LANG_CODES.map(lc => P(IgnoreCase(lc) ~~ !wordChar)).reduceLeft(_ | _))!)
   private val countryOp = P((countryOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ COUNTRY_CODES.map(lc => P(IgnoreCase(lc) ~~ !wordChar)).reduceLeft(_ | _))!)
 
-  // TODO: restrict country and lang operators
   private val specialOps = (
     numberRangeOps.map(_ -> numberRange) ++
     numericOps.map(_ -> numericOp) ++

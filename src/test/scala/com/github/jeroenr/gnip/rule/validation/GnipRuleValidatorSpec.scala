@@ -303,6 +303,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("gender:male", "twitter").failure
       GnipRuleValidator("gender:male", "foursquare").success
     }
+    "NOT accept not existing source" in {
+      intercept[IllegalArgumentException](GnipRuleValidator("test", "doesnotexist"))
+    }
   }
 
 }
