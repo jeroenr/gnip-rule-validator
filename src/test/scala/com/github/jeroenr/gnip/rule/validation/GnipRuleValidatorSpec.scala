@@ -259,6 +259,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("profile_bounding_box:[-105.301758 39.964069 -105.178505 45 4]", "twitter").failure
       GnipRuleValidator("profile_bounding_box:[-105.301758 -105.178505]", "twitter").failure
     }
+    "NOT accept special ops for normal ops operator" in {
+      GnipRuleValidator("country_code:[-105.301758 39.964069 -105.178505]", "twitter").failure
+    }
     "accept profile_point_radius operator" in {
       GnipRuleValidator("profile_point_radius:[-105.27346517 40.01924738 10km]", "twitter").success
       GnipRuleValidator("profile_point_radius:[105.27346517 40.01924738 10.2mi]", "twitter").success
@@ -268,6 +271,19 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("profile_point_radius:[105.27346517 40.01924738 10.2m]", "twitter").failure
       GnipRuleValidator("profile_point_radius:[105.27346517 40.01924738 40.01924738 10.2mi]", "twitter").failure
       GnipRuleValidator("profile_point_radius:[105.27346517 10.2mi]", "twitter").failure
+    }
+    "accept statuses_count operator" in {
+      GnipRuleValidator("statuses_count:1000..10000", "twitter").success
+      GnipRuleValidator("statuses_count:1000", "twitter").success
+    }
+    "accept klout_score operator" in {
+      GnipRuleValidator("klout_score:1000..10000", "twitter").success
+      GnipRuleValidator("klout_score:1000", "twitter").success
+    }
+    "NOT accept wrong use of statuses_count operator" in {
+      GnipRuleValidator("statuses_count:1000...10000", "twitter").failure
+      GnipRuleValidator("statuses_count:1000.0", "twitter").failure
+      GnipRuleValidator("statuses_count:-900", "twitter").failure
     }
     "accept quoted keywords as operator param" in {
       GnipRuleValidator("profile_subregion:\"San Francisco County\"", "twitter").success

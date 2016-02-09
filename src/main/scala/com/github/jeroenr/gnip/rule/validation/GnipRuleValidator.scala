@@ -1,6 +1,6 @@
 package com.github.jeroenr.gnip.rule.validation
 
-import fastparse.{ all, WhitespaceApi }
+import fastparse.WhitespaceApi
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
@@ -32,11 +32,24 @@ class GnipRuleParser(source: String) {
   private val quotedWord = P(("\"" ~ (wordChar+) ~ "\"")!)
   private val digit = P((number++) ~ (("." ~~ (number ++))?))
   private val latOrLon = P(("-"?) ~~ digit)
-  private val boundingBox = P("[" ~ latOrLon.rep(min = 4, max = 4) ~ "]")
-  private val pointRadius = P("[" ~ latOrLon.rep(min = 2, max = 2) ~ digit ~~ ("mi" | "km") ~ "]")
-  private val operatorParam = P(":" ~~ (boundingBox | pointRadius | quotedWord | (wordChar++)))
+  private val boundingBox = P(("bounding_box" | "profile_bounding_box") ~~ ":[" ~ latOrLon.rep(min = 4, max = 4) ~ "]")
+  private val pointRadius = P(("point_radius" | "profile_point_radius") ~~ ":[" ~ latOrLon.rep(min = 2, max = 2) ~ digit ~~ ("mi" | "km") ~ "]")
+  private val numberRange = P(("statuses_count" | "klout_score") ~~ ":" ~~ ((number++) ~~ ((".." ~~ (number++))?)))
+
+  val specialOps = Map(
+    "bounding_box" -> boundingBox,
+    "profile_bounding_box" -> boundingBox,
+    "profile_point_radius" -> pointRadius,
+    "point_radius" -> pointRadius,
+    "statuses_count" -> numberRange,
+    "klout_score" -> numberRange
+  )
+
+  private val operatorParam = P(":" ~~ (quotedWord | (wordChar++)))
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@"))
-  private val operators = P(OPERATORS.map(_ ~~ (operatorParam?)).reduceLeft(_ | _))
+  private val operators = P(OPERATORS.map { op =>
+    specialOps.getOrElse(op, op ~~ (operatorParam?))
+  }.reduceLeft(_ | _))
 
   private val keyword = P((operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | specialChar)**)))!).filter(_ != "OR")
   private val maybeNegatedKeyword = P((("-"?) ~~ keyword)!)
