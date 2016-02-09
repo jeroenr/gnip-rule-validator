@@ -254,6 +254,10 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept bounding box operator" in {
       GnipRuleValidator("profile_bounding_box:[-105.301758 39.964069 -105.178505 40.09455]", "twitter").success
     }
+    "accept profile_point_radius operator" in {
+      GnipRuleValidator("profile_point_radius:[-105.27346517 40.01924738 10km]", "twitter").success
+      GnipRuleValidator("profile_point_radius:[105.27346517 40.01924738 10.2mi]", "twitter").success
+    }
     "accept quoted keywords as operator param" in {
       GnipRuleValidator("profile_subregion:\"San Francisco County\"", "twitter").success
     }

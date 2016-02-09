@@ -33,7 +33,8 @@ class GnipRuleParser(source: String) {
   private val digit = P((number++) ~ (("." ~~ (number ++))?))
   private val latOrLon = P(("-"?) ~~ digit)
   private val boundingBox = P("[" ~ latOrLon.rep(min = 4, max = 4) ~ "]")
-  private val operatorParam = P(":" ~~ (boundingBox | quotedWord | (wordChar++)))
+  private val pointRadius = P("[" ~ latOrLon.rep(min = 2, max = 2) ~ digit ~~ ("mi" | "km") ~ "]")
+  private val operatorParam = P(":" ~~ (boundingBox | pointRadius | quotedWord | (wordChar++)))
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@"))
   private val operators = P(OPERATORS.map(_ ~~ (operatorParam?)).reduceLeft(_ | _))
 
