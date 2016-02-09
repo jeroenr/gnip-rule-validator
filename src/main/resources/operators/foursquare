@@ -1,0 +1,13 @@
+point_radius
+bounding_box
+venue_name
+venue_name_contains
+venue_id
+venue_category
+venue_category_contains
+gender
+country_name
+region
+locality
+locality_contains
+postal_code

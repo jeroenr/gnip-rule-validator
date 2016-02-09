@@ -45,8 +45,6 @@ U+2000 -- U+2BFF
 U+FF00 -- U+FF03
 U+FF05 -- U+FF0F
 ```
-## Support more operators
-I chose to support only generic (available across all sources) operators. If you want to support source specific operators, just add them to the *src/main/resources/operators* file.
 
 ## Contributing
 Pull requests are always welcome
