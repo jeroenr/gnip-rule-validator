@@ -32,18 +32,25 @@ class GnipRuleParser(source: String) {
   private val quotedWord = P(("\"" ~ (wordChar+) ~ "\"")!)
   private val digit = P((number++) ~ (("." ~~ (number ++))?))
   private val latOrLon = P(("-"?) ~~ digit)
-  private val boundingBox = P(("bounding_box" | "profile_bounding_box") ~~ ":[" ~ latOrLon.rep(min = 4, max = 4) ~ "]")
-  private val pointRadius = P(("point_radius" | "profile_point_radius") ~~ ":[" ~ latOrLon.rep(min = 2, max = 2) ~ digit ~~ ("mi" | "km") ~ "]")
-  private val numberRange = P(("statuses_count" | "klout_score") ~~ ":" ~~ ((number++) ~~ ((".." ~~ (number++))?)))
 
-  val specialOps = Map(
-    "bounding_box" -> boundingBox,
-    "profile_bounding_box" -> boundingBox,
-    "profile_point_radius" -> pointRadius,
-    "point_radius" -> pointRadius,
-    "statuses_count" -> numberRange,
-    "klout_score" -> numberRange
-  )
+  // TODO: make configurable (read from file or something)
+  private val numberRangeOps = Seq("statuses_count", "klout_score", "friends_count", "followers_count", "listed_count")
+  private val numericOps = Seq("sample")
+  private val boundingBoxOps = Seq("bounding_box", "profile_bounding_box")
+  private val pointRadiusOps = Seq("point_radius", "profile_point_radius")
+
+  private val boundingBox = P((boundingBoxOps.map(P(_)).reduceLeft(_ | _) ~~ ":[" ~ latOrLon.rep(min = 4, max = 4) ~ "]")!)
+  private val pointRadius = P((pointRadiusOps.map(P(_)).reduceLeft(_ | _) ~~ ":[" ~ latOrLon.rep(min = 2, max = 2) ~ digit ~~ ("mi" | "km") ~ "]")!)
+  private val numberRange = P((numberRangeOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ ((number++) ~~ ((".." ~~ (number++))?)))!)
+  private val numericOp = P((numericOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ (number++))!)
+
+  // TODO: restrict country and lang operators
+  private val specialOps = (
+    numberRangeOps.map(_ -> numberRange) ++
+    numericOps.map(_ -> numericOp) ++
+    boundingBoxOps.map(_ -> boundingBox) ++
+    pointRadiusOps.map(_ -> pointRadius)
+  ).toMap
 
   private val operatorParam = P(":" ~~ (quotedWord | (wordChar++)))
   private val specialChar = P(CharIn("!%&\\'*+-./;<=>?,#@"))
