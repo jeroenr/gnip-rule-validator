@@ -1,0 +1,14 @@
+contains
+from
+to
+url_contains
+has:links
+lang
+has:lang
+sample
+post_title
+post_title_contains
+is:reblog
+reblogs_of
+source_url_contains
+type

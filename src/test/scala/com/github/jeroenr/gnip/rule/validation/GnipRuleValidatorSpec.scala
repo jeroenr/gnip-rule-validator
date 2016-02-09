@@ -291,6 +291,10 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept full syntax" in {
       GnipRuleValidator("(gnip OR from:688583 OR @gnip OR datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github", "twitter").success
     }
+    "accept gender operator for Foursquare only" in {
+      GnipRuleValidator("gender:male", "twitter").failure
+      GnipRuleValidator("gender:male", "foursquare").success
+    }
   }
 
 }

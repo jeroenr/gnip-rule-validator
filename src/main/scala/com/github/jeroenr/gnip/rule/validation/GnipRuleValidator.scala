@@ -38,18 +38,21 @@ class GnipRuleParser(source: String) {
   private val numericOps = Seq("sample")
   private val boundingBoxOps = Seq("bounding_box", "profile_bounding_box")
   private val pointRadiusOps = Seq("point_radius", "profile_point_radius")
+  private val genderOps = Seq("gender")
 
   private val boundingBox = P((boundingBoxOps.map(P(_)).reduceLeft(_ | _) ~~ ":[" ~ latOrLon.rep(min = 4, max = 4) ~ "]")!)
   private val pointRadius = P((pointRadiusOps.map(P(_)).reduceLeft(_ | _) ~~ ":[" ~ latOrLon.rep(min = 2, max = 2) ~ digit ~~ ("mi" | "km") ~ "]")!)
   private val numberRange = P((numberRangeOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ ((number++) ~~ ((".." ~~ (number++))?)))!)
   private val numericOp = P((numericOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ (number++))!)
+  private val genderOp = P((genderOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ ("male" | "female"))!)
 
   // TODO: restrict country and lang operators
   private val specialOps = (
     numberRangeOps.map(_ -> numberRange) ++
     numericOps.map(_ -> numericOp) ++
     boundingBoxOps.map(_ -> boundingBox) ++
-    pointRadiusOps.map(_ -> pointRadius)
+    pointRadiusOps.map(_ -> pointRadius) ++
+    genderOps.map(_ -> genderOp)
   ).toMap
 
   private val operatorParam = P(":" ~~ (quotedWord | (wordChar++)))
