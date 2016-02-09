@@ -254,9 +254,20 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept bounding box operator" in {
       GnipRuleValidator("profile_bounding_box:[-105.301758 39.964069 -105.178505 40.09455]", "twitter").success
     }
+    "NOT accept wrong use of bounding box operator" in {
+      GnipRuleValidator("profile_bounding_box:[-105.301758 39.964069 -105.178505]", "twitter").failure
+      GnipRuleValidator("profile_bounding_box:[-105.301758 39.964069 -105.178505 45 4]", "twitter").failure
+      GnipRuleValidator("profile_bounding_box:[-105.301758 -105.178505]", "twitter").failure
+    }
     "accept profile_point_radius operator" in {
       GnipRuleValidator("profile_point_radius:[-105.27346517 40.01924738 10km]", "twitter").success
       GnipRuleValidator("profile_point_radius:[105.27346517 40.01924738 10.2mi]", "twitter").success
+    }
+    "NOT accept wrong use of profile_point_radius operator" in {
+      GnipRuleValidator("profile_point_radius:[-105.27346517 40.01924738 10 km]", "twitter").failure
+      GnipRuleValidator("profile_point_radius:[105.27346517 40.01924738 10.2m]", "twitter").failure
+      GnipRuleValidator("profile_point_radius:[105.27346517 40.01924738 40.01924738 10.2mi]", "twitter").failure
+      GnipRuleValidator("profile_point_radius:[105.27346517 10.2mi]", "twitter").failure
     }
     "accept quoted keywords as operator param" in {
       GnipRuleValidator("profile_subregion:\"San Francisco County\"", "twitter").success
