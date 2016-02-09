@@ -25,6 +25,8 @@ class GnipRuleParser(source: String) {
   }
   val OPERATORS = Source.fromInputStream(getClass.getResourceAsStream(s"/operators/$source")).getLines.toSeq
   val STOP_WORDS = Source.fromInputStream(getClass.getResourceAsStream("/stopwords")).getLines.toSeq
+  val LANG_CODES = Source.fromInputStream(getClass.getResourceAsStream("/lang_codes")).getLines.toSeq
+  val COUNTRY_CODES = Source.fromInputStream(getClass.getResourceAsStream("/country_codes")).getLines.toSeq
 
   private val stopWord = P(StringIn(STOP_WORDS: _*)!)
   private val number = P(CharIn('0' to '9'))
@@ -39,12 +41,16 @@ class GnipRuleParser(source: String) {
   private val boundingBoxOps = Seq("bounding_box", "profile_bounding_box")
   private val pointRadiusOps = Seq("point_radius", "profile_point_radius")
   private val genderOps = Seq("gender")
+  private val langOps = Seq("lang", "twitter_lang")
+  private val countryOps = Seq("country_code", "profile_country_code")
 
   private val boundingBox = P((boundingBoxOps.map(P(_)).reduceLeft(_ | _) ~~ ":[" ~ latOrLon.rep(min = 4, max = 4) ~ "]")!)
   private val pointRadius = P((pointRadiusOps.map(P(_)).reduceLeft(_ | _) ~~ ":[" ~ latOrLon.rep(min = 2, max = 2) ~ digit ~~ ("mi" | "km") ~ "]")!)
   private val numberRange = P((numberRangeOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ ((number++) ~~ ((".." ~~ (number++))?)))!)
   private val numericOp = P((numericOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ (number++))!)
   private val genderOp = P((genderOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ ("male" | "female"))!)
+  private val langOp = P((langOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ LANG_CODES.map(lc => P(IgnoreCase(lc))).reduceLeft(_ | _))!)
+  private val countryOp = P((countryOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ COUNTRY_CODES.map(lc => P(IgnoreCase(lc))).reduceLeft(_ | _))!)
 
   // TODO: restrict country and lang operators
   private val specialOps = (
@@ -52,7 +58,9 @@ class GnipRuleParser(source: String) {
     numericOps.map(_ -> numericOp) ++
     boundingBoxOps.map(_ -> boundingBox) ++
     pointRadiusOps.map(_ -> pointRadius) ++
-    genderOps.map(_ -> genderOp)
+    genderOps.map(_ -> genderOp) ++
+    langOps.map(_ -> langOp) ++
+    countryOps.map(_ -> countryOp)
   ).toMap
 
   private val operatorParam = P(":" ~~ (quotedWord | (wordChar++)))
