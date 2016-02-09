@@ -48,7 +48,7 @@ class GnipRuleParser(source: String) {
   private val pointRadius = P((pointRadiusOps.map(P(_)).reduceLeft(_ | _) ~~ ":[" ~ latOrLon.rep(min = 2, max = 2) ~ digit ~~ ("mi" | "km") ~ "]")!)
   private val numberRange = P((numberRangeOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ ((number++) ~~ ((".." ~~ (number++))?)))!)
   private val numericOp = P((numericOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ (number++))!)
-  private val genderOp = P((genderOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ ("male" | "female"))!)
+  private val genderOp = P((genderOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ ("male" | "female") ~~ (!wordChar))!)
   private val langOp = P((langOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ LANG_CODES.map(lc => P(IgnoreCase(lc) ~~ !wordChar)).reduceLeft(_ | _))!)
   private val countryOp = P((countryOps.map(P(_)).reduceLeft(_ | _) ~~ ":" ~~ COUNTRY_CODES.map(lc => P(IgnoreCase(lc) ~~ !wordChar)).reduceLeft(_ | _))!)
 
