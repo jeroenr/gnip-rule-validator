@@ -308,6 +308,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept quoted keywords as operator param" in {
       GnipRuleValidator("profile_subregion:\"San Francisco County\"", "twitter").success
     }
+    "accept unicode chars in keyword" in {
+      GnipRuleValidator("bla{he˽lʲʳʴʵʶʷʸʹʺʻʼʽʾʿˀˁ˂˃˄˅ˆˇˈˉˊˋˌˍˎˏ₩₪₫€₭₮₯₰ːˑ˒˓˔˕˖˗˘˙˚˛˜˝˞˟ˠˡˢˣˤ˥˦˧˨˩˪˫ˬ˭ˮ˯˰˱˲˳˴˵˶˷˸˹˺˻˼˽˾˿̴̵̶̷̸̡̢̧̨̛̖̗̘̙̜̝̞̟̠ͰͱͲͳʹ͵Ͷͷlo", "twitter").success
+    }
     "accept full syntax" in {
       GnipRuleValidator("(gnip OR from:688583 OR @gnip OR datasift) (\"powertrack -operators\" OR (-\"streaming code\"~4 foo OR bar)) -contains:help has:links url_contains:github bio_contains:developer has:links url_contains:github source:web (friends_count:1 OR followers_count:2000 OR listed_count:500 OR statuses_count:1000..10000 OR is:verified OR klout_score:50) (country_code:US OR (bio_location:CO OR bio_location_contains:\"Boulder\") OR time_zone:\"Mountain Time (US & Canada)\") -is:retweet (lang:en OR twitter_lang:en)", "twitter").success
     }
