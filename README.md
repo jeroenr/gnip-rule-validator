@@ -1,6 +1,5 @@
-# Gnip rule validator [![Build Status](https://travis-ci.org/jeroenr/gnip-rule-validator.svg?branch=master)](https://travis-ci.org/jeroenr/gnip-rule-validator)
+# Gnip rule validator [![Join the chat at https://gitter.im/jeroenr/gnip-rule-validator](https://badges.gitter.im/jeroenr/gnip-rule-validator.svg)](https://gitter.im/jeroenr/gnip-rule-validator?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)[![Build Status](https://travis-ci.org/jeroenr/gnip-rule-validator.svg?branch=master)](https://travis-ci.org/jeroenr/gnip-rule-validator)
 
-[![Join the chat at https://gitter.im/jeroenr/gnip-rule-validator](https://badges.gitter.im/jeroenr/gnip-rule-validator.svg)](https://gitter.im/jeroenr/gnip-rule-validator?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 This is a Gnip rule validator that parser Gnip rules using the [the FastParse library](https://lihaoyi.github.io/fastparse/). It's useful to validate the syntax of Gnip rules before submitting them and applying them to your stream.
 
 ## Usage
