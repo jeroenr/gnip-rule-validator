@@ -56,7 +56,7 @@ scalacOptions ++=  Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.lihaoyi" %% "fastparse" % "0.3.5",
+  "com.lihaoyi" %% "fastparse" % "0.3.6",
   "ch.qos.logback" % "logback-classic" % "1.1.2",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
