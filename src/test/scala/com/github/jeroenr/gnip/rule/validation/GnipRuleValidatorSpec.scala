@@ -161,6 +161,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "NOT accept unclosed groups" in {
       GnipRuleValidator("(hello (world) bla", "twitter").failure
     }
+    "NOT accept deep unclosed groups" in {
+      GnipRuleValidator("(ab ( cd ( ef( gh ( ij ((hello (world) bla) lol) hehe))) xz)", "twitter").failure
+    }
     "accept single powertrack operator" in {
       GnipRuleValidator("lang:EN", "twitter").success
     }
