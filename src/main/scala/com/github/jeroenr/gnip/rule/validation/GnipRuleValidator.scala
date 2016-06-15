@@ -34,10 +34,12 @@ class GnipRuleParser(source: String) {
 
   private val stopWord = P(StringIn(STOP_WORDS: _*)!)
   private val number = P(CharIn('0' to '9')!)
-  private val wordChar = P((CharIn('a' to 'z') | CharIn('A' to 'Z') | number | "_")!)
-  private val unicodeRanges = Seq('\u007b' to '\u00bf', '\u02B0' to '\u037F', '\u2000' to '\u2bff', '\uff00' to '\uff03', '\uff05' to '\uff0f')
-  private val specialChar = P((CharIn("!%&\\'*+-./;<=>?,#@") | unicodeRanges.map(ur => P(CharIn(ur))).reduceLeft(_ | _))!)
-  private val quotedWord = P(("\"" ~ ((specialChar | P(CharIn("()[]")) | wordChar)+) ~ "\"")!)
+  private val punctuationUnicodeRanges = Seq('\u007B' to '\u00BF', '\u02B0' to '\u037F', '\u2000' to '\u2BFF', '\uFF00' to '\uFF03', '\uFF05' to '\uFF0F')
+  private val basicPunctuation = "!%&\\'*+-./;<=>?,#@"
+  private val punctuationChars = P((CharIn(basicPunctuation) | punctuationUnicodeRanges.map(ur => P(CharIn(ur))).reduceLeft(_ | _))!)
+  private val allowedUnicodesInWords = ('\u0080' to '\uFFFF') diff (punctuationUnicodeRanges.flatten ++ basicPunctuation.toSet)
+  private val wordChar = P((CharIn('a' to 'z') | CharIn('A' to 'Z') | number | "_" | CharIn(allowedUnicodesInWords))!)
+  private val quotedWord = P(("\"" ~ ((punctuationChars | P(CharIn("()[]")) | wordChar)+) ~ "\"")!)
   private val digit = P(((number++) ~ (("." ~~ (number ++))?))!)
   private val latOrLon = P((("-"?) ~~ digit)!)
 
@@ -73,10 +75,10 @@ class GnipRuleParser(source: String) {
     specialOps.getOrElse(op, op ~~ (operatorParam?))
   }.reduceLeft(_ | _))
 
-  private val keyword = P((operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | specialChar)**)))!).filter(_ != "OR")
+  private val keyword = P((operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | punctuationChars)**)))!).filter(_ != "OR")
   private val maybeNegatedKeyword = P((("-"?) ~~ keyword)!)
 
-  private val quotedKeyword = P((("\""!) ~ ((specialChar | P(CharIn("()[]")) | maybeNegatedKeyword)+) ~ "\"" ~~ (("~" ~~ number)?))!)
+  private val quotedKeyword = P((("\""!) ~ ((punctuationChars | P(CharIn("()[]")) | maybeNegatedKeyword)+) ~ "\"" ~~ (("~" ~~ number)?))!)
 
   private val keywordGroupWithoutOrClause = P(((("-"?) ~~ quotedKeyword) | maybeNegatedKeyword | (("-"?) ~~ keywordsInParentheses))!)
   private val keywordGroup = P((orClause | keywordGroupWithoutOrClause)!).opaque("<keyword-group>")
