@@ -5,7 +5,7 @@ This is a Gnip rule validator that parser Gnip rules using the [the FastParse li
 ## Usage
 Add the dependency to your build.sbt
 ```scala
-libraryDependencies += "com.github.jeroenr" %% "gnip-rule-validator" % "0.10"
+libraryDependencies += "com.github.jeroenr" %% "gnip-rule-validator" % "0.11"
 ```
 Use it!
 ```scala
