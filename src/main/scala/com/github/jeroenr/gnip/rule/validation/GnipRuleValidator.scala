@@ -24,7 +24,7 @@ class GnipRuleParser(powertrackVersion: PowertrackVersion, source: Source) {
     def * = p.rep
     def ** = p.repX
   }
-  val OPERATORS = Try(readLines(s"/${powertrackVersion.id}/operators/${source.id}")).getOrElse(throw new IllegalArgumentException(s"Source $source is not supported")).sortWith(_.length > _.length)
+  val OPERATORS = Try(readLines(s"/${powertrackVersion.id}/operators/${source.id}")).getOrElse(throw new IllegalArgumentException(s"Source ${source.id} is not supported for Powertrack ${powertrackVersion.id}")).sortWith(_.length > _.length)
   val STOP_WORDS = readLines(s"/${powertrackVersion.id}/stopwords")
   val LANG_CODES = readLines(s"/${powertrackVersion.id}/lang_codes")
   val COUNTRY_CODES = readLines(s"/${powertrackVersion.id}/country_codes")
