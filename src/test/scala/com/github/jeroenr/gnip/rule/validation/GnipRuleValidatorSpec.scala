@@ -173,6 +173,9 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
     "accept proximity operator" in {
       GnipRuleValidator("\"happy birthday\"~3", Twitter, PowertrackV1).success
     }
+    "accept cashtag operator" in {
+      GnipRuleValidator("$AAPL lol", Twitter, PowertrackV1).success
+    }
     "accept powertrack operator with terms before" in {
       GnipRuleValidator("bla lang:en", Twitter, PowertrackV1).success
     }
