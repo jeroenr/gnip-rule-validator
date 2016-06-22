@@ -10,7 +10,7 @@ import scala.util.Try
 /**
  * Created by jero on 3-2-16.
  */
-class GnipRuleParser(source: String) {
+class GnipRuleParser(powertrackVersion: PowertrackVersion, source: Source) {
   val White = WhitespaceApi.Wrapper {
     import fastparse.all._
     NoTrace(" ".rep)
@@ -24,7 +24,7 @@ class GnipRuleParser(source: String) {
     def * = p.rep
     def ** = p.repX
   }
-  val OPERATORS = Try(readLines(s"/operators/$source")).getOrElse(throw new IllegalArgumentException(s"Source $source is not supported")).sortWith(_.length > _.length)
+  val OPERATORS = Try(readLines(s"/operators/${powertrackVersion.id}/${source.id}")).getOrElse(throw new IllegalArgumentException(s"Source $source is not supported")).sortWith(_.length > _.length)
   val STOP_WORDS = readLines("/stopwords")
   val LANG_CODES = readLines("/lang_codes")
   val COUNTRY_CODES = readLines("/country_codes")
@@ -100,7 +100,7 @@ object GnipRuleValidator {
 
   val log = LoggerFactory.getLogger(getClass)
 
-  def apply(rule: String, source: String) = new GnipRuleParser(source).parse(rule) match {
+  def apply(rule: String, source: Source, powertrackVersion: PowertrackVersion = Powertrack2_0) = new GnipRuleParser(powertrackVersion, source).parse(rule) match {
     case Success(matched, index) =>
       log.debug(s"Matched: $matched")
       scala.util.Success(matched)
