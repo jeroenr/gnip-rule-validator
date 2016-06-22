@@ -49,7 +49,7 @@ class GnipRuleParser(powertrackVersion: PowertrackVersion, source: Source) {
   private val boundingBoxOps = Seq("bounding_box", "profile_bounding_box")
   private val pointRadiusOps = Seq("point_radius", "profile_point_radius")
   private val langOps = Seq("lang", "twitter_lang", "bio_lang")
-  private val countryOps = Seq("country_code", "profile_country_code")
+  private val countryOps = Seq("country_code", "profile_country_code", "profile_country", "place_country")
 
   private val boundingBox = P((boundingBoxOps.map(P(_)).reduceLeft(_ | _) ~~ (":["!) ~ latOrLon.rep(min = 4, max = 4) ~ "]")!)
   private val pointRadius = P((pointRadiusOps.map(P(_)).reduceLeft(_ | _) ~~ (":["!) ~ latOrLon.rep(min = 2, max = 2) ~ digit ~~ ("mi" | "km") ~ "]")!)
@@ -72,7 +72,7 @@ class GnipRuleParser(powertrackVersion: PowertrackVersion, source: Source) {
     specialOps.getOrElse(op, op ~~ (operatorParam?))
   }.reduceLeft(_ | _))
 
-  private val keyword = P((operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | punctuationChars)**)))!).filter(_ != "OR")
+  private val keyword = P((operators | ((CharIn("#@$")?) ~~ wordChar ~~ ((wordChar | punctuationChars)**)))!).filter(_ != "OR")
   private val maybeNegatedKeyword = P((("-"?) ~~ keyword)!)
 
   private val quotedKeyword = P((("\""!) ~ ((punctuationChars | P(CharIn("()[]")) | maybeNegatedKeyword)+) ~ "\"" ~~ (("~" ~~ number)?))!)

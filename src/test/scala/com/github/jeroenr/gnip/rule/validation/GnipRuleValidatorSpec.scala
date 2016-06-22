@@ -311,6 +311,15 @@ class GnipRuleValidatorSpec extends WordSpec with MustMatchers with TryValues {
       GnipRuleValidator("country_code:XX", Twitter, PowertrackV1).failure
       GnipRuleValidator("country_code:USA", Twitter, PowertrackV1).failure
     }
+    "NOT accept country_code operator for Gnip 2.0" in {
+      GnipRuleValidator("country_code:uk", Twitter, Powertrack2_0).failure
+    }
+    "NOT accept profile_country operator for Gnip v1" in {
+      GnipRuleValidator("profile_country:uk", Twitter, PowertrackV1).failure
+    }
+    "accept profile_country operator for Gnip 2.0" in {
+      GnipRuleValidator("profile_country:uk", Twitter, Powertrack2_0).failure
+    }
     "accept quoted keywords as operator param" in {
       GnipRuleValidator("profile_subregion:\"San Francisco County\"", Twitter, PowertrackV1).success
     }
