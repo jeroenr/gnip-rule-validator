@@ -10,7 +10,7 @@ import scala.util.Try
 /**
  * Created by jero on 3-2-16.
  */
-class GnipRuleParser(source: String) {
+class GnipRuleParser(powertrackVersion: PowertrackVersion, source: Source) {
   val White = WhitespaceApi.Wrapper {
     import fastparse.all._
     NoTrace(" ".rep)
@@ -24,10 +24,10 @@ class GnipRuleParser(source: String) {
     def * = p.rep
     def ** = p.repX
   }
-  val OPERATORS = Try(readLines(s"/operators/$source")).getOrElse(throw new IllegalArgumentException(s"Source $source is not supported")).sortWith(_.length > _.length)
-  val STOP_WORDS = readLines("/stopwords")
-  val LANG_CODES = readLines("/lang_codes")
-  val COUNTRY_CODES = readLines("/country_codes")
+  val OPERATORS = Try(readLines(s"/${powertrackVersion.id}/operators/${source.id}")).getOrElse(throw new IllegalArgumentException(s"Source ${source.id} is not supported for Powertrack ${powertrackVersion.id}")).sortWith(_.length > _.length)
+  val STOP_WORDS = readLines(s"/${powertrackVersion.id}/stopwords")
+  val LANG_CODES = readLines(s"/${powertrackVersion.id}/lang_codes")
+  val COUNTRY_CODES = readLines(s"/${powertrackVersion.id}/country_codes")
 
   private def readLines(path: String) =
     Source.fromInputStream(getClass.getResourceAsStream(path)).getLines.toSeq
@@ -48,15 +48,13 @@ class GnipRuleParser(source: String) {
   private val numericOps = Seq("sample")
   private val boundingBoxOps = Seq("bounding_box", "profile_bounding_box")
   private val pointRadiusOps = Seq("point_radius", "profile_point_radius")
-  private val genderOps = Seq("gender")
   private val langOps = Seq("lang", "twitter_lang", "bio_lang")
-  private val countryOps = Seq("country_code", "profile_country_code")
+  private val countryOps = Seq("country_code", "profile_country_code", "profile_country", "place_country")
 
   private val boundingBox = P((boundingBoxOps.map(P(_)).reduceLeft(_ | _) ~~ (":["!) ~ latOrLon.rep(min = 4, max = 4) ~ "]")!)
   private val pointRadius = P((pointRadiusOps.map(P(_)).reduceLeft(_ | _) ~~ (":["!) ~ latOrLon.rep(min = 2, max = 2) ~ digit ~~ ("mi" | "km") ~ "]")!)
   private val numberRange = P((numberRangeOps.map(P(_)).reduceLeft(_ | _) ~~ (":"!) ~~ ((number++) ~~ ((".." ~~ (number++))?)))!)
   private val numericOp = P((numericOps.map(P(_)).reduceLeft(_ | _) ~~ (":"!) ~~ (number++))!)
-  private val genderOp = P((genderOps.map(P(_)).reduceLeft(_ | _) ~~ (":"!) ~~ ("male" | "female") ~~ (!wordChar))!)
   private val langOp = P((langOps.map(P(_)).reduceLeft(_ | _) ~~ (":"!) ~~ LANG_CODES.map(lc => P(IgnoreCase(lc) ~~ !wordChar)).reduceLeft(_ | _))!)
   private val countryOp = P((countryOps.map(P(_)).reduceLeft(_ | _) ~~ (":"!) ~~ COUNTRY_CODES.map(lc => P(IgnoreCase(lc) ~~ !wordChar)).reduceLeft(_ | _))!)
 
@@ -65,7 +63,6 @@ class GnipRuleParser(source: String) {
     numericOps.map(_ -> numericOp) ++
     boundingBoxOps.map(_ -> boundingBox) ++
     pointRadiusOps.map(_ -> pointRadius) ++
-    genderOps.map(_ -> genderOp) ++
     langOps.map(_ -> langOp) ++
     countryOps.map(_ -> countryOp)
   ).toMap
@@ -75,7 +72,7 @@ class GnipRuleParser(source: String) {
     specialOps.getOrElse(op, op ~~ (operatorParam?))
   }.reduceLeft(_ | _))
 
-  private val keyword = P((operators | ((CharIn("#@")?) ~~ wordChar ~~ ((wordChar | punctuationChars)**)))!).filter(_ != "OR")
+  private val keyword = P((operators | ((CharIn("#@$")?) ~~ wordChar ~~ ((wordChar | punctuationChars)**)))!).filter(_ != "OR")
   private val maybeNegatedKeyword = P((("-"?) ~~ keyword)!)
 
   private val quotedKeyword = P((("\""!) ~ ((punctuationChars | P(CharIn("()[]")) | maybeNegatedKeyword)+) ~ "\"" ~~ (("~" ~~ number)?))!)
@@ -100,7 +97,7 @@ object GnipRuleValidator {
 
   val log = LoggerFactory.getLogger(getClass)
 
-  def apply(rule: String, source: String) = new GnipRuleParser(source).parse(rule) match {
+  def apply(rule: String, source: Source, powertrackVersion: PowertrackVersion = Powertrack2_0) = new GnipRuleParser(powertrackVersion, source).parse(rule) match {
     case Success(matched, index) =>
       log.debug(s"Matched: $matched")
       scala.util.Success(matched)
